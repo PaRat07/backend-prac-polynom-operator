@@ -1,2 +1,76 @@
 #include "../core/monomial.h"
 
+Monomial::Monomial()
+        : factor(0)
+{
+    powers.fill(0);
+}
+
+Monomial::Monomial(const double &f, const std::array<int, 26> &p)
+        : factor(f)
+        , powers(p)
+{}
+
+std::strong_ordering Monomial::operator<=>(const Monomial &rhs) const {
+    auto ans = std::lexicographical_compare_three_way(powers.begin(), powers.end(), rhs.powers.begin(), rhs.powers.end());
+    if (ans == std::strong_ordering::less) {
+        return std::strong_ordering::greater;
+    } else if (ans == std::strong_ordering::greater) {
+        return std::strong_ordering::less;
+    } else {
+        return std::strong_ordering::equal;
+    }
+}
+
+Monomial Monomial::operator-() const {
+    return { -factor, powers };
+}
+
+Monomial Monomial::operator*(Monomial rhs) const {
+    rhs.factor *= factor;
+    std::transform(rhs.powers.begin(), rhs.powers.end(), powers.begin(), rhs.powers.begin(), std::plus<>{});
+    return rhs;
+}
+
+bool Monomial::operator==(const Monomial &rhs) const {
+    return std::equal(powers.begin(), powers.end(), rhs.powers.begin());
+}
+
+bool Monomial::operator!=(const Monomial &rhs) const {
+    return !(*this == rhs);
+}
+
+std::string Monomial::ToString() const {
+    std::string ans;
+    if (factor >= 0) {
+        ans.push_back('+');
+    }
+    {
+        std::ostringstream sout;
+        sout << factor;
+        ans += sout.str();
+    }
+    for (int i = 0; i < 26; ++i) {
+        if (powers[i] > 0) {
+            ans.push_back('a' + i);
+            if (powers[i] > 1) {
+                ans.push_back('^');
+                ans += std::to_string(powers[i]);
+            }
+        }
+    }
+    return ans;
+}
+
+double Monomial::CalcValAt(const std::array<int, 26> &arr) const {
+    return factor * std::transform_reduce(powers.begin(), powers.end(),
+                                          arr.begin(),
+                                          1, std::multiplies<>{},
+                                          [] (int power, int val) {
+                                              return std::pow(val, power);
+                                          });
+}
+
+bool Mergeable(const Monomial &a, const Monomial &b) {
+    return a == b;
+}

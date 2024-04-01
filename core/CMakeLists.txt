@@ -5,6 +5,7 @@ set(SRCS
         ../src/single_linked_list.cpp
         ../src/monomial.cpp
         ../src/polynomial.cpp
+        ../src/parser.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SRCS})

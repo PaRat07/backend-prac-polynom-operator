@@ -219,6 +219,13 @@ public:
         return first_ == nullptr;
     }
 
+
+    void PopFront() {
+        if (first_ == nullptr) {
+            throw std::runtime_error("Tried PopFront for empty SingleLinkedList");
+        }
+        first_ = first_->next;
+    }
 private:
     std::shared_ptr<Node> first_, last_;
 
