@@ -74,10 +74,10 @@ public:
     class ConstListIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
-        using value_type = Value;
+        using value_type = const Value;
         using difference_type = std::ptrdiff_t;
-        using pointer = const std::shared_ptr<value_type>;
-        using reference = const value_type&;
+        using pointer = value_type*;
+        using reference = value_type&;
 
         ConstListIterator(std::shared_ptr<const Node> ptr)
                 : base_(std::move(ptr))
@@ -89,12 +89,8 @@ public:
             return base_->val;
         }
 
-        pointer operator->() {
-            return base_;
-        }
-
-        const pointer operator->() const {
-            return base_;
+        pointer operator->() const {
+            return &base_->val;
         }
 
         ConstListIterator operator++() {
@@ -170,7 +166,7 @@ public:
 
     template<typename... Args>
     void EmplaceBack(Args&&... val) {
-        last_->next = std::make_shared<Node>(std::forward(val)...);
+        last_->next = std::make_shared<Node>(std::forward<Args>(val)...);
         last_ = last_->next;
     }
 

@@ -9,12 +9,27 @@ struct Monomial {
         powers.fill(0);
     }
 
+    Monomial(const int &f, const std::array<int, 26> &p)
+        : factor(f)
+        , powers(p)
+    {}
+
     int factor;
     std::array<int, 26> powers;
 
 
     auto operator<=>(const Monomial &rhs) const {
         return std::lexicographical_compare_three_way(powers.begin(), powers.end(), rhs.powers.begin(), rhs.powers.end());
+    }
+
+    Monomial operator-() const {
+        return { -factor, powers };
+    }
+
+    Monomial operator*(Monomial rhs) const {
+        rhs.factor *= factor;
+        std::transform(rhs.powers.begin(), rhs.powers.end(), powers.begin(), rhs.powers.begin(), std::plus<>{});
+        return rhs;
     }
 
     bool operator==(const Monomial &rhs) const {

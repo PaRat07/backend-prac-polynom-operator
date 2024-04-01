@@ -1,6 +1,7 @@
 #pragma once
 
-#include "bits/stdc++.h"
+#include <string>
+#include <exception>
 
 #include "monomial.h"
 
@@ -29,15 +30,29 @@ public:
                 case '-': {
                     if (state.prev == Prev::NOTHING) {
                         state.is_gr0 = false;
+                        state.prev = Prev::SIGN;
+                        break;
                     }
                 }
                 case '+': {
+                    switch (state.prev) {
+                        case Prev::LETTER:
+                            state.cur_ans.powers[state.cur_letter - 'a'] += 1;
+                            break;
+                        case Prev::CARET:
+                            if (state.cur_num.has_value()) {
+                                state.cur_ans.powers[state.cur_letter - 'a'] += *state.cur_num;
+                                break;
+                            }
+                        case Prev::SIGN:
+                            if (state.cur_num.has_value()) {
+                                state.cur_ans.factor = *state.cur_num;
+                                break;
+                            }
+                            throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_pares_.size()));
+
+                    }
                     if (state.prev != Prev::NOTHING) {
-                        if (state.cur_letter != '#') {
-                            state.cur_ans.powers[state.cur_letter - 'a'] = (state.cur_num.has_value() ? *state.cur_num : 1);
-                        } else {
-                            state.cur_ans.factor = (state.cur_num.has_value() ? *state.cur_num : 1);
-                        }
                         goto end;
                     }
                     state.prev = Prev::SIGN;
@@ -59,14 +74,14 @@ public:
                         switch (state.prev) {
                             case Prev::CARET:
                                 if (state.cur_num.has_value()) {
-                                    state.cur_ans.powers[state.cur_letter - 'a'] = (state.cur_num.has_value() ? *state.cur_num : 1);
+                                    state.cur_ans.powers[state.cur_letter - 'a'] += (state.cur_num.has_value() ? *state.cur_num : 1);
                                     state.cur_num.reset();
                                     break;
                                 }
                             case Prev::NOTHING:
                                 throw std::invalid_argument("Unexpected letter at position " + std::to_string(data_.size() - to_pares_.size()));
                             case Prev::LETTER:
-                                state.cur_ans.powers[state.cur_letter - 'a'] = 1;
+                                state.cur_ans.powers[state.cur_letter - 'a'] += 1;
                                 break;
                             case Prev::SIGN:
                                 state.cur_ans.factor = *state.cur_num;
@@ -84,10 +99,23 @@ public:
                 }
             }
             to_pares_.remove_prefix(1);
-
         }
-        if (state.cur_letter != '#') {
-            state.cur_ans.powers[state.cur_letter - 'a'] = (state.cur_num.has_value() ? *state.cur_num : 1);
+        switch (state.prev) {
+            case Prev::LETTER:
+                state.cur_ans.powers[state.cur_letter - 'a'] += 1;
+                break;
+            case Prev::CARET:
+                if (state.cur_num.has_value()) {
+                    state.cur_ans.powers[state.cur_letter - 'a'] += *state.cur_num;
+                    break;
+                }
+            case Prev::SIGN:
+                if (state.cur_num.has_value()) {
+                    state.cur_ans.factor = *state.cur_num;
+                    break;
+                }
+                throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_pares_.size()));
+
         }
         end:;
         return state.cur_ans;
