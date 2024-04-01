@@ -1,6 +1,8 @@
 #pragma once
 
-#include "bits/stdc++.h"
+#include <algorithm>
+#include <array>
+#include <string>
 
 struct Monomial {
     Monomial()

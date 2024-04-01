@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bits/stdc++.h"
+#include <algorithm>
 
 #include "single_linked_list.h"
 #include "monomial.h"

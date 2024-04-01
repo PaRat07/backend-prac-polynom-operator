@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include <exception>
+#include <stdexcept>
+#include <optional>
 
 #include "monomial.h"
 
@@ -9,20 +10,20 @@ class Parser {
 public:
     Parser(std::string data)
         : data_((!data.empty() && data[0] != '-' ? '+' + data : data))
-        , to_pares_(data_)
+        , to_parse_(data_)
     {}
 
 
     Monomial GetMonomial() {
         State state;
-        while (!to_pares_.empty()) {
-            switch (to_pares_[0]) {
+        while (!to_parse_.empty()) {
+            switch (to_parse_[0]) {
                 case '^': {
                     switch (state.prev) {
                         case Prev::CARET:
                         case Prev::NOTHING:
                         case Prev::SIGN:
-                            throw std::invalid_argument("Unexpected caret at position " + std::to_string(data_.size() - to_pares_.size()));
+                            throw std::invalid_argument("Unexpected caret at position " + std::to_string(data_.size() - to_parse_.size()));
                     }
                     state.prev = Prev::CARET;
                     break;
@@ -49,7 +50,7 @@ public:
                                 state.cur_ans.factor = *state.cur_num;
                                 break;
                             }
-                            throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_pares_.size()));
+                            throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_parse_.size()));
 
                     }
                     if (state.prev != Prev::NOTHING) {
@@ -59,18 +60,18 @@ public:
                     break;
                 }
                 default: {
-                    if (to_pares_[0] >= '0' && to_pares_[0] <= '9') {
+                    if (to_parse_[0] >= '0' && to_parse_[0] <= '9') {
                         switch (state.prev) {
                             case Prev::LETTER:
                             case Prev::NOTHING:
-                                throw std::invalid_argument("Unexpected number at position " + std::to_string(data_.size() - to_pares_.size()));
+                                throw std::invalid_argument("Unexpected number at position " + std::to_string(data_.size() - to_parse_.size()));
                         }
                         if (!state.cur_num.has_value()) {
                             state.cur_num = 0;
                         }
                         *state.cur_num *= 10;
-                        *state.cur_num += to_pares_[0] - '0';
-                    } else if (to_pares_[0] >= 'a' && to_pares_[0] <= 'z') {
+                        *state.cur_num += to_parse_[0] - '0';
+                    } else if (to_parse_[0] >= 'a' && to_parse_[0] <= 'z') {
                         switch (state.prev) {
                             case Prev::CARET:
                                 if (state.cur_num.has_value()) {
@@ -79,7 +80,7 @@ public:
                                     break;
                                 }
                             case Prev::NOTHING:
-                                throw std::invalid_argument("Unexpected letter at position " + std::to_string(data_.size() - to_pares_.size()));
+                                throw std::invalid_argument("Unexpected letter at position " + std::to_string(data_.size() - to_parse_.size()));
                             case Prev::LETTER:
                                 state.cur_ans.powers[state.cur_letter - 'a'] += 1;
                                 break;
@@ -90,15 +91,15 @@ public:
                                 }
                                 state.cur_num.reset();
                         }
-                        state.cur_letter = to_pares_[0];
+                        state.cur_letter = to_parse_[0];
                         state.prev = Prev::LETTER;
                     } else {
-                        throw std::invalid_argument("Unexpected character" + std::string(to_pares_.substr(0, 1)) + " at pos " + std::to_string(data_.size() - to_pares_.size()));
+                        throw std::invalid_argument("Unexpected character" + std::string(to_parse_.substr(0, 1)) + " at pos " + std::to_string(data_.size() - to_parse_.size()));
                     }
                     break;
                 }
             }
-            to_pares_.remove_prefix(1);
+            to_parse_.remove_prefix(1);
         }
         switch (state.prev) {
             case Prev::LETTER:
@@ -114,7 +115,7 @@ public:
                     state.cur_ans.factor = *state.cur_num;
                     break;
                 }
-                throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_pares_.size()));
+                throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_parse_.size()));
 
         }
         end:;
@@ -122,12 +123,12 @@ public:
     }
 
     bool Empty() const {
-        return to_pares_.empty();
+        return to_parse_.empty();
     }
 
 private:
     std::string data_;
-    std::string_view to_pares_;
+    std::string_view to_parse_;
 
     enum class Prev {
         LETTER,

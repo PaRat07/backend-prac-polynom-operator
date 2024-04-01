@@ -1,6 +1,7 @@
 #pragma once
 
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <memory>
 
 template<typename Value>
 class SingleLinkedList {
