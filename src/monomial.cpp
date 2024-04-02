@@ -12,14 +12,7 @@ Monomial::Monomial(const double &f, const std::array<int, 26> &p)
 {}
 
 std::strong_ordering Monomial::operator<=>(const Monomial &rhs) const {
-    auto ans = std::lexicographical_compare_three_way(powers.begin(), powers.end(), rhs.powers.begin(), rhs.powers.end());
-    if (ans == std::strong_ordering::less) {
-        return std::strong_ordering::greater;
-    } else if (ans == std::strong_ordering::greater) {
-        return std::strong_ordering::less;
-    } else {
-        return std::strong_ordering::equal;
-    }
+    return std::lexicographical_compare_three_way(powers.begin(), powers.end(), rhs.powers.begin(), rhs.powers.end());
 }
 
 Monomial Monomial::operator-() const {

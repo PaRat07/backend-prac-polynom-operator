@@ -85,7 +85,7 @@ public:
                                 state.cur_ans.powers[state.cur_letter - 'a'] += 1;
                                 break;
                             case Prev::SIGN:
-                                state.cur_ans.factor = *state.cur_num;
+                                state.cur_ans.factor = (state.cur_num.has_value() ? *state.cur_num : 1);
                                 if (!state.is_gr0) {
                                     state.cur_ans.factor *= -1;
                                 }
@@ -112,7 +112,7 @@ public:
                 }
             case Prev::SIGN:
                 if (state.cur_num.has_value()) {
-                    state.cur_ans.factor = *state.cur_num;
+                    state.cur_ans.factor = state.is_gr0 ? *state.cur_num : -*state.cur_num;
                     break;
                 }
                 throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_parse_.size()));

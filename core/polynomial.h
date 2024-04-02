@@ -34,6 +34,8 @@ public:
 
     double GetValueAt(const std::array<int, 26> &vals) const;
 
+    SingleLinkedList<int> GetIntegerRoots() const;
+
 //    SingleLinkedList<int>
 
 private:

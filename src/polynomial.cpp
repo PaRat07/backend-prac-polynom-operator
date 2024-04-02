@@ -9,9 +9,11 @@ Polynomial::Polynomial(const std::string &s) {
 }
 
 std::string Polynomial::ToString() const {
-    return std::transform_reduce(data_.begin(), data_.end(), std::string(), std::plus<>{}, [] (const Monomial &m) {
-        return m.ToString();
-    });
+    std::string ans;
+    for (const Monomial &m : data_) {
+        ans = m.ToString() + ans;
+    }
+    return ans;
 }
 
 Polynomial Polynomial::operator+(const Polynomial &rhs) const {
@@ -86,4 +88,49 @@ double Polynomial::GetValueAt(const std::array<int, 26> &vals) const {
     return std::transform_reduce(data_.begin(), data_.end(), 0, std::plus<>{}, [&vals] (const Monomial &m) {
         return m.CalcValAt(vals);
     });
+}
+
+SingleLinkedList<int> Polynomial::GetIntegerRoots() const {
+    int letter = -1;
+    for (const Monomial &m : data_) {
+        for (int i = 0; i < 26; ++i) {
+            if (m.powers[i] > 0) {
+                if (letter == -1) {
+                    letter = i;
+                }
+                if (letter != i) {
+                    throw std::runtime_error("Called GetIntegerRoots for some variables polynom");
+                }
+            }
+        }
+    }
+    SingleLinkedList<int> ans;
+    if (data_.Empty() || data_.Front().powers[letter] != 0) {
+        return ans;
+    }
+    std::array<int, 26> vals;
+    vals.fill(0);
+    int factor_copy = data_.Front().factor;
+    for (int i = 1; i * i <= factor_copy; ++i) {
+        if (factor_copy % i == 0) {
+            factor_copy /= i;
+            vals[letter] = i;
+            if (std::abs(GetValueAt(vals)) < 1e-6) {
+                ans.PushBack(i);
+            }
+            vals[letter] = -i;
+            if (std::abs(GetValueAt(vals)) < 1e-6) {
+                ans.PushBack(-i);
+            }
+        }
+    }
+    vals[letter] = factor_copy;
+    if (std::abs(GetValueAt(vals)) < 1e-6) {
+        ans.PushBack(factor_copy);
+    }
+    vals[letter] = -factor_copy;
+    if (std::abs(GetValueAt(vals)) < 1e-6) {
+        ans.PushBack(-factor_copy);
+    }
+    return ans;
 }

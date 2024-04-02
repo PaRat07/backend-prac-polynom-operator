@@ -226,6 +226,18 @@ public:
         }
         first_ = first_->next;
     }
+
+    template<typename T>
+    void PushFront(T&& val) {
+        if (first_ != nullptr) {
+            std::shared_ptr<Node> new_first = Node(std::forward<T>(val));
+            new_first->next = first_;
+            first_ = new_first;
+        } else {
+            last_ = first_ = std::make_shared<Node>(std::forward<T>(val));
+        }
+    }
+
 private:
     std::shared_ptr<Node> first_, last_;
 
