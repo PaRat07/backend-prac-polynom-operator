@@ -10,10 +10,11 @@ private:
         template<typename... Args>
         Node(Args&&... v)
                 : next(nullptr)
+                , prev(nullptr)
                 , val(std::forward<Args>(v)...)
         {}
 
-        std::shared_ptr<Node> next;
+        std::shared_ptr<Node> next, prev;
         Value val;
     };
 
@@ -21,10 +22,10 @@ public:
 
     class ListIterator {
     public:
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::bidirectional_iterator_tag;
         using value_type = Value;
         using difference_type = std::ptrdiff_t;
-        using pointer = std::shared_ptr<value_type>;
+        using pointer = value_type*;
         using reference = value_type&;
 
         ListIterator() = default;
@@ -56,13 +57,33 @@ public:
             return base_ = base_->next;
         }
 
+        ListIterator operator--() {
+            if (base_ == nullptr) {
+                throw std::runtime_error("Attempt to dereference null ListIterator");
+            }
+            return base_ = base_->prev;
+        }
+
         ListIterator operator++(int /*fucking_unused*/) {
             if (base_ == nullptr) {
                 throw std::runtime_error("Attempt to dereference null ListIterator");
             }
-            Node *buf = base_;
+            std::shared_ptr<Node> buf = base_;
             base_ = base_->next;
             return buf;
+        }
+
+        ListIterator operator--(int /*fucking_unused*/) {
+            if (base_ == nullptr) {
+                throw std::runtime_error("Attempt to dereference null ListIterator");
+            }
+            std::shared_ptr<Node> buf = base_;
+            base_ = base_->prev;
+            return buf;
+        }
+
+        std::shared_ptr<Node> Base() const {
+            return base_;
         }
 
         bool operator==(const ListIterator&) const = default;
@@ -74,10 +95,10 @@ public:
 
     class ConstListIterator {
     public:
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::bidirectional_iterator_tag;
         using value_type = const Value;
         using difference_type = std::ptrdiff_t;
-        using pointer = value_type*;
+        using pointer = std::shared_ptr<value_type>;
         using reference = value_type&;
 
         ConstListIterator(std::shared_ptr<const Node> ptr)
@@ -91,7 +112,7 @@ public:
         }
 
         pointer operator->() const {
-            return &base_->val;
+            return base_;
         }
 
         ConstListIterator operator++() {
@@ -101,17 +122,37 @@ public:
             return { base_ = std::const_pointer_cast<const Node>(base_->next) };
         }
 
+        ConstListIterator operator--() {
+            if (base_ == nullptr) {
+                throw std::runtime_error("Attempt to dereference null ConstListIterator");
+            }
+            return { base_ = std::const_pointer_cast<const Node>(base_->prev) };
+        }
+
         ConstListIterator operator++(int /*fucking_unused*/) {
             if (base_ == nullptr) {
                 throw std::runtime_error("Attempt to dereference null ConstListIterator");
             }
-            std::shared_ptr<const Node> *buf = base_;
-            base_ = base_->next;
+            std::shared_ptr<const Node> buf = base_;
+            base_ = std::const_pointer_cast<const Node>(base_->next);
+            return buf;
+        }
+
+        ConstListIterator operator--(int /*fucking_unused*/) {
+            if (base_ == nullptr) {
+                throw std::runtime_error("Attempt to dereference null ConstListIterator");
+            }
+            std::shared_ptr<const Node> buf = base_;
+            base_ = std::const_pointer_cast<const Node>(base_->prev);
             return buf;
         }
 
         bool operator==(const ConstListIterator&) const = default;
         bool operator!=(const ConstListIterator&) const = default;
+
+        std::shared_ptr<const Node> Base() const {
+            return base_;
+        }
 
     private:
         std::shared_ptr<const Node> base_;
@@ -228,13 +269,10 @@ public:
     }
 
     template<typename T>
-    void PushFront(T&& val) {
-        if (first_ != nullptr) {
-            std::shared_ptr<Node> new_first = Node(std::forward<T>(val));
-            new_first->next = first_;
-            first_ = new_first;
-        } else {
-            last_ = first_ = std::make_shared<Node>(std::forward<T>(val));
+    void Insert(ConstListIterator it, T &&val) {
+        std::shared_ptr<Node> new_node = std::make_shared<Node>(std::forward<T>(val));
+        if (it.base_ != nullptr) {
+
         }
     }
 
@@ -242,58 +280,75 @@ private:
     std::shared_ptr<Node> first_, last_;
 
 
+    static bool Cmp(ConstListIterator lhs, ConstListIterator rhs, bool(*)(Value,Value)) {
+
+    }
 
     static std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> Sort(std::shared_ptr<Node> beg) {
-        std::shared_ptr<Node> less_beg = nullptr, less_back = nullptr,
-                            eq_beg = beg, eq_back = beg,
-                            gr_beg = nullptr, gr_back = nullptr;
+        if (beg->next == nullptr) return std::pair(beg, beg);
 
-        beg = beg->next;
-        while (beg != nullptr) {
-            if (beg->val < eq_back->val) {
-                if (less_beg == nullptr) {
-                    less_beg = beg;
+        std::shared_ptr<Node> turtle = beg, rabbit = beg;
+        while (rabbit != nullptr && rabbit->next != nullptr) {
+            rabbit = rabbit->next->next;
+            turtle = turtle->next;
+        }
+        turtle->prev->next = nullptr;
+
+        std::shared_ptr<Node> l, ml, mr, r;
+        std::tie(l, ml) = Sort(beg);
+        std::tie(mr, r) = Sort(turtle);
+        return Merge(l, mr);
+    }
+
+    static std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> Merge(std::shared_ptr<Node> beg1, std::shared_ptr<Node> beg2) {
+        std::shared_ptr<Node> ans_back = nullptr, ans_beg = nullptr;
+        while (beg1 != nullptr && beg2 != nullptr) {
+            if (beg1->val < beg2->val) {
+                if (ans_back == nullptr) {
+                    ans_back = beg1;
+                    ans_beg = ans_back;
                 } else {
-                    less_back->next = beg;
+                    ans_back->next = beg1;
+                    beg1->prev = ans_back;
+                    ans_back = beg1;
                 }
-                less_back = beg;
-            } else if (eq_back->val < beg->val) {
-                if (gr_beg == nullptr) {
-                    gr_beg = beg;
-                } else {
-                    gr_back->next = beg;
-                }
-                gr_back = beg;
+                beg1 = beg1->next;
             } else {
-                eq_back->next = beg;
-                eq_back = beg;
+                if (ans_back == nullptr) {
+                    ans_back = beg2;
+                    ans_beg = ans_back;
+                } else {
+                    ans_back->next = beg2;
+                    beg2->prev = ans_back;
+                    ans_back = beg2;
+                }
+                beg2 = beg2->next;
             }
-            beg = beg->next;
         }
-        if (less_beg != nullptr) {
-            less_back->next = nullptr;
-            std::tie(less_beg, less_back) = Sort(less_beg);
+        while (beg1 != nullptr) {
+            if (ans_back == nullptr) {
+                ans_back = beg1;
+                ans_beg = ans_back;
+            } else {
+                ans_back->next = beg1;
+                beg1->prev = ans_back;
+                ans_back = beg1;
+            }
+            beg1 = beg1->next;
         }
-        if (gr_beg != nullptr) {
-            gr_back->next = nullptr;
-            std::tie(gr_beg, gr_back) = Sort(gr_beg);
+        while (beg2 != nullptr) {
+            if (ans_back == nullptr) {
+                ans_back = beg2;
+                ans_beg = ans_back;
+            } else {
+                ans_back->next = beg2;
+                beg2->prev = ans_back;
+                ans_back = beg2;
+            }
+            beg2 = beg2->next;
         }
-        if (gr_beg != nullptr) {
-            gr_back->next = nullptr;
-        } else {
-            gr_back = eq_back;
-        }
-        if (less_beg != nullptr) {
-            less_back->next = eq_beg;
-        } else {
-            less_beg = eq_beg;
-        }
-        if (gr_beg != nullptr) {
-            eq_back->next = gr_beg;
-        } else {
-            eq_back->next = nullptr;
-        }
-
-        return std::pair(less_beg, gr_back);
+        ans_beg->prev = nullptr;
+        ans_back->next = nullptr;
+        return std::pair(ans_beg, ans_back);
     }
 };
