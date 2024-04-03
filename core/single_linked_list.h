@@ -28,6 +28,7 @@ private:
     };
 
 public:
+    using value_type = Value;
 
     class ConstListIterator {
     public:

@@ -134,3 +134,18 @@ SingleLinkedList<int> Polynomial::GetIntegerRoots() const {
     }
     return ans;
 }
+
+void Polynomial::Normalize() {
+    data_.Sort();
+    SingleLinkedList<Monomial> new_data;
+    for (const Monomial &m : data_) {
+        if (m.factor == 0) continue;
+
+        if (!new_data.Empty() && Mergeable(new_data.Back(), m)) {
+            new_data.Back().factor += m.factor;
+        } else {
+            new_data.PushBack(m);
+        }
+    }
+    data_ = std::move(new_data);
+}

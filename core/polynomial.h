@@ -38,24 +38,18 @@ public:
 
 //    SingleLinkedList<int>
 
+    Polynomial GetDerivative() const {
+        SingleLinkedList<Monomial> ans;
+        std::transform(data_.begin(), data_.end(), std::back_inserter(ans), [] (const Monomial &m) {
+
+        });
+    }
+
 private:
     SingleLinkedList<Monomial> data_;
 
 
-    void Normalize() {
-        data_.Sort();
-        SingleLinkedList<Monomial> new_data;
-        for (const Monomial &m : data_) {
-            if (m.factor == 0) continue;
-
-            if (!new_data.Empty() && Mergeable(new_data.Back(), m)) {
-                new_data.Back().factor += m.factor;
-            } else {
-                new_data.PushBack(m);
-            }
-        }
-        data_ = std::move(new_data);
-    }
+    void Normalize();
 };
 
 class DivisionResult {
