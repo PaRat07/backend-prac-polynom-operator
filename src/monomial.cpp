@@ -38,7 +38,7 @@ std::string Monomial::ToString() const {
     if (factor >= 0) {
         ans.push_back('+');
     }
-    {
+    if (factor != 1 || std::accumulate(powers.begin(), powers.end(), 0) == 0) {
         std::ostringstream sout;
         sout << factor;
         ans += sout.str();

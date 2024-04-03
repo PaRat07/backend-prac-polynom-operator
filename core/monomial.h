@@ -26,6 +26,15 @@ struct Monomial {
     std::string ToString() const;
 
     double CalcValAt(const std::array<int, 26> &arr) const;
+
+    Monomial GetDerivative(int letter) const {
+        Monomial ans = *this;
+        ans.factor *= ans.powers[letter]--;
+        if (ans.powers[letter] < 0) {
+            throw std::runtime_error("Can't get derivate");
+        }
+        return ans;
+    }
 };
 
 bool Mergeable(const Monomial &a, const Monomial &b);

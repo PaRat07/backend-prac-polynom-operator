@@ -7,7 +7,6 @@
 #include "monomial.h"
 #include "parser.h"
 
-class DivisionResult;
 
 class Polynomial {
 public:
@@ -24,6 +23,8 @@ public:
 
     Polynomial operator*(const Polynomial &rhs) const;
 
+    struct DivisionResult;
+
     DivisionResult operator/(const Polynomial &rhs) const;
 
     Polynomial &operator+=(const Polynomial &rhs);
@@ -38,12 +39,7 @@ public:
 
 //    SingleLinkedList<int>
 
-    Polynomial GetDerivative() const {
-        SingleLinkedList<Monomial> ans;
-        std::transform(data_.begin(), data_.end(), std::back_inserter(ans), [] (const Monomial &m) {
-
-        });
-    }
+    Polynomial GetDerivative() const;
 
 private:
     SingleLinkedList<Monomial> data_;
@@ -52,6 +48,10 @@ private:
     void Normalize();
 };
 
-class DivisionResult {
+struct Polynomial::DivisionResult {
     Polynomial den, num, whole_num;
 };
+
+Polynomial operator""_p(const char *data, size_t size);
+
+std::ostream &operator<<(std::ostream &out, const Polynomial &p);

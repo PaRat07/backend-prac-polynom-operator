@@ -158,7 +158,7 @@ public:
             : pre_sentinel_(new Node)
     {
         std::for_each(other.begin(), other.end(), [&] (const Value &val) {
-            PushBack(val);
+            push_back(val);
         });
     }
 
@@ -175,7 +175,7 @@ public:
             : pre_sentinel_(new Node)
     {
         std::for_each(beg, end, [&] (auto x) {
-            PushBack(x);
+            push_back(x);
         });
     }
 
@@ -190,10 +190,11 @@ public:
 
     SingleLinkedList<Value> &operator=(const SingleLinkedList<Value> &other) {
         if (other.pre_sentinel_ == pre_sentinel_) return *this;
-        while(pre_sentinel_) {
+        while(size_ > 0) {
             Node *buf = pre_sentinel_->next;
             delete pre_sentinel_;
             pre_sentinel_ = buf;
+            --size_;
         }
         pre_sentinel_ = new Node;
 
@@ -211,6 +212,11 @@ public:
     template<typename... Args>
     void EmplaceBack(Args&&... val) {
         EmplaceBefore(pre_sentinel_, std::forward<Args>(val)...);
+    }
+
+    template<typename T>
+    void push_back(T&& val) {
+        EmplaceBack(std::forward<T>(val));
     }
 
     template<typename T>
@@ -259,7 +265,7 @@ public:
     }
 
     const Value &Back() const {
-        return pre_sentinel_->val;
+        return pre_sentinel_->prev->val;
     }
 
     bool Empty() const {
@@ -308,9 +314,9 @@ private:
         bool to_l = true;
         for (const auto &i : l) {
             if (to_l) {
-                left.PushBack(i);
+                left.push_back(i);
             } else {
-                right.PushBack(i);
+                right.push_back(i);
             }
             to_l = !to_l;
         }
@@ -322,16 +328,16 @@ private:
         SingleLinkedList ans;
         while (itl != left.end() && itr != right.end()) {
             if (*itl < *itr) {
-                ans.PushBack(*itl++);
+                ans.push_back(*itl++);
             } else {
-                ans.PushBack(*itr++);
+                ans.push_back(*itr++);
             }
         }
         while (itl != left.end()) {
-            ans.PushBack(*itl++);
+            ans.push_back(*itl++);
         }
         while (itr != right.end()) {
-            ans.PushBack(*itr++);
+            ans.push_back(*itr++);
         }
         return ans;
     }
