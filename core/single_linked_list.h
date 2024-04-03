@@ -2,6 +2,15 @@
 
 #include <algorithm>
 #include <memory>
+#include <list>
+
+// FIXME
+#include <iostream>
+
+//template<typename T>
+//static std::weak_ptr<T> WeakConstCast(std::weak_ptr<const T> ptr) {
+//    return std::weak_ptr<T>(const_cast<T*>(&*ptr.lock()));
+//}
 
 template<typename Value>
 class SingleLinkedList {
@@ -9,128 +18,59 @@ private:
     struct Node {
         template<typename... Args>
         Node(Args&&... v)
-                : next(nullptr)
-                , prev(nullptr)
-                , val(std::forward<Args>(v)...)
-        {}
+                : val(std::forward<Args>(v)...)
+        {
+        }
 
-        std::shared_ptr<Node> next, prev;
+        ~Node() {
+            next.reset();
+        }
+
+        std::shared_ptr<Node> next;
+        std::weak_ptr<Node> prev;
         Value val;
     };
 
 public:
-
-    class ListIterator {
-    public:
-        using iterator_category = std::bidirectional_iterator_tag;
-        using value_type = Value;
-        using difference_type = std::ptrdiff_t;
-        using pointer = value_type*;
-        using reference = value_type&;
-
-        ListIterator() = default;
-
-        ListIterator(std::shared_ptr<Node> ptr)
-                : base_(std::move(ptr))
-        {}
-
-        reference operator*() {
-            return base_->val;
-        }
-
-        reference operator*() const {
-            return base_->val;
-        }
-
-        pointer operator->() {
-            return base_->val;
-        }
-
-        std::shared_ptr<const Node> operator->() const {
-            return base_;
-        }
-
-        ListIterator operator++() {
-            if (base_ == nullptr) {
-                throw std::runtime_error("Attempt to dereference null ListIterator");
-            }
-            return base_ = base_->next;
-        }
-
-        ListIterator operator--() {
-            if (base_ == nullptr) {
-                throw std::runtime_error("Attempt to dereference null ListIterator");
-            }
-            return base_ = base_->prev;
-        }
-
-        ListIterator operator++(int /*fucking_unused*/) {
-            if (base_ == nullptr) {
-                throw std::runtime_error("Attempt to dereference null ListIterator");
-            }
-            std::shared_ptr<Node> buf = base_;
-            base_ = base_->next;
-            return buf;
-        }
-
-        ListIterator operator--(int /*fucking_unused*/) {
-            if (base_ == nullptr) {
-                throw std::runtime_error("Attempt to dereference null ListIterator");
-            }
-            std::shared_ptr<Node> buf = base_;
-            base_ = base_->prev;
-            return buf;
-        }
-
-        std::shared_ptr<Node> Base() const {
-            return base_;
-        }
-
-        bool operator==(const ListIterator&) const = default;
-        bool operator!=(const ListIterator&) const = default;
-
-    private:
-        std::shared_ptr<Node> base_;
-    };
 
     class ConstListIterator {
     public:
         using iterator_category = std::bidirectional_iterator_tag;
         using value_type = const Value;
         using difference_type = std::ptrdiff_t;
-        using pointer = std::shared_ptr<value_type>;
+        using pointer = value_type*;
         using reference = value_type&;
 
-        ConstListIterator(std::shared_ptr<const Node> ptr)
+        ConstListIterator(std::weak_ptr<const Node> ptr)
                 : base_(std::move(ptr))
         {}
 
         ConstListIterator() = default;
 
         reference operator*() const {
-            return base_->val;
+            return base_.lock()->val;
         }
 
         pointer operator->() const {
-            return base_;
+            return &base_.lock()->val;
         }
 
         ConstListIterator operator++() {
-            if (base_ == nullptr) {
+            if (base_.expired()) {
                 throw std::runtime_error("Attempt to dereference null ConstListIterator");
             }
-            return { base_ = std::const_pointer_cast<const Node>(base_->next) };
+            return { base_ = std::const_pointer_cast<const Node>(base_.lock()->next) };
         }
 
         ConstListIterator operator--() {
-            if (base_ == nullptr) {
+            if (base_.expired()) {
                 throw std::runtime_error("Attempt to dereference null ConstListIterator");
             }
             return { base_ = std::const_pointer_cast<const Node>(base_->prev) };
         }
 
         ConstListIterator operator++(int /*fucking_unused*/) {
-            if (base_ == nullptr) {
+            if (base_.expired()) {
                 throw std::runtime_error("Attempt to dereference null ConstListIterator");
             }
             std::shared_ptr<const Node> buf = base_;
@@ -147,37 +87,132 @@ public:
             return buf;
         }
 
-        bool operator==(const ConstListIterator&) const = default;
-        bool operator!=(const ConstListIterator&) const = default;
+        bool operator==(const ConstListIterator &rhs) const {
+            return &*base_.lock() == &*rhs.base_.lock();
+        }
+        bool operator!=(const ConstListIterator &rhs) const {
+            return &*base_.lock() != &*rhs.base_.lock();
+        }
 
-        std::shared_ptr<const Node> Base() const {
+
+        std::weak_ptr<const Node> Base() const {
             return base_;
         }
 
     private:
-        std::shared_ptr<const Node> base_;
+        std::weak_ptr<const Node> base_;
     };
 
-    SingleLinkedList() = default;
+    class ListIterator {
+    public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = Value;
+        using difference_type = std::ptrdiff_t;
+        using pointer = value_type*;
+        using reference = value_type&;
 
-    SingleLinkedList(const SingleLinkedList<Value> &other) {
+        ListIterator() = default;
+
+        ListIterator(std::weak_ptr<Node> ptr)
+                : base_(std::move(ptr))
+        {}
+
+        reference operator*() {
+            return base_.lock()->val;
+        }
+
+        reference operator*() const {
+            return base_->val;
+        }
+
+        pointer operator->() {
+            return base_->val;
+        }
+
+        std::shared_ptr<const Node> operator->() const {
+            return base_;
+        }
+
+        ListIterator operator++() {
+            if (base_.expired()) {
+                throw std::runtime_error("Attempt to dereference null ListIterator");
+            }
+            return base_ = base_.lock()->next;
+        }
+
+        ListIterator operator--() {
+            if (base_.expired()) {
+                throw std::runtime_error("Attempt to dereference null ListIterator");
+            }
+            return base_ = base_->prev;
+        }
+
+        ListIterator operator++(int /*fucking_unused*/) {
+            if (base_.expired()) {
+                throw std::runtime_error("Attempt to dereference null ListIterator");
+            }
+            std::shared_ptr<Node> buf = base_;
+            base_ = base_->next;
+            return buf;
+        }
+
+        ListIterator operator--(int /*fucking_unused*/) {
+            if (base_ == nullptr) {
+                throw std::runtime_error("Attempt to dereference null ListIterator");
+            }
+            std::shared_ptr<Node> buf = base_;
+            base_ = base_->prev;
+            return buf;
+        }
+
+        std::weak_ptr<Node> Base() const {
+            return base_;
+        }
+
+        bool operator==(const ListIterator &rhs) const {
+            return &*base_.lock() == &*rhs.base_.lock();
+        }
+        bool operator!=(const ListIterator &rhs) const {
+            return &*base_.lock() != &*rhs.base_.lock();
+        }
+
+        operator ConstListIterator() {
+            return std::weak_ptr<const Node>(std::const_pointer_cast<const Node>(base_.lock()));
+        }
+
+    private:
+        std::weak_ptr<Node> base_;
+    };
+
+    SingleLinkedList()
+        : pre_sentinel_(ConstructSentinel())
+    {
+    }
+
+    SingleLinkedList(const SingleLinkedList<Value> &other)
+            : pre_sentinel_(ConstructSentinel())
+    {
         std::for_each(other.begin(), other.end(), [&] (const Value &val) {
             PushBack(val);
         });
     }
 
     SingleLinkedList(SingleLinkedList &&other) {
-        first_ = other.first_;
-        last_ = other.last_;
-        other.first_.reset();
-        other.last_.reset();
+        pre_sentinel_ = other.pre_sentinel_;
+        other.pre_sentinel_ = ConstructSentinel();
     }
 
     template<typename Iterator>
-    SingleLinkedList(Iterator beg, Iterator end) {
+    SingleLinkedList(Iterator beg, Iterator end)
+            : pre_sentinel_(ConstructSentinel())
+    {
         std::for_each(beg, end, [&] (auto x) {
             PushBack(x);
         });
+    }
+
+    ~SingleLinkedList() {
+        pre_sentinel_->next.reset();
     }
 
     SingleLinkedList<Value> &operator=(const SingleLinkedList<Value> &other) {
@@ -188,32 +223,26 @@ public:
     }
 
     SingleLinkedList<Value> &operator=(SingleLinkedList<Value> &&other) noexcept {
-        first_ = other.first_;
-        last_ = other.last_;
-        other.first_.reset();
-        other.last_.reset();
+        pre_sentinel_ = other.pre_sentinel_;
+        other.pre_sentinel_ = ConstructSentinel();
         return *this;
-    }
-
-
-    template<typename T>
-    void PushBack(T&& val) {
-        if (last_ != nullptr) {
-            last_->next = std::make_shared<Node>(std::forward<T>(val));
-            last_ = last_->next;
-        } else {
-            last_ = first_ = std::make_shared<Node>(std::forward<T>(val));
-        }
     }
 
     template<typename... Args>
     void EmplaceBack(Args&&... val) {
-        last_->next = std::make_shared<Node>(std::forward<Args>(val)...);
-        last_ = last_->next;
+        pre_sentinel_->prev.lock()->next = std::make_shared<Node>(std::forward<Args>(val)...);
+        pre_sentinel_->prev = pre_sentinel_->prev.lock()->next;
+        pre_sentinel_->prev.lock()->next->prev = pre_sentinel_->prev.lock()->next;
+        pre_sentinel_->prev.lock()->next->next = pre_sentinel_;
+    }
+
+    template<typename T>
+    void PushBack(T&& val) {
+        EmplaceBack(std::forward<T>(val));
     }
 
     ConstListIterator begin() const {
-        return { first_ };
+        return { pre_sentinel_->next };
     }
 
     ConstListIterator end() const {
@@ -221,7 +250,7 @@ public:
     }
 
     ListIterator begin() {
-        return first_;
+        return {pre_sentinel_->next};
     }
 
     ListIterator end() {
@@ -229,7 +258,7 @@ public:
     }
 
     ConstListIterator cbegin() const {
-        return first_;
+        return { pre_sentinel_->next };
     }
 
     ConstListIterator cend() const {
@@ -237,52 +266,56 @@ public:
     }
 
     void Sort() {
-        std::tie(first_, last_) = Sort(first_);
+        std::tie(pre_sentinel_->next, pre_sentinel_->prev) = Sort(pre_sentinel_->next);
     }
 
     Value &Front() {
-        return first_->val;
+        return pre_sentinel_->val;
     }
 
     const Value &Front() const {
-        return first_->val;
+        return pre_sentinel_->val;
     }
 
     Value &Back() {
-        return last_->val;
+        return pre_sentinel_->prev.lock()->val;
     }
 
     const Value &Back() const {
-        return last_->val;
+        return pre_sentinel_.lock()->val;
     }
 
     bool Empty() const {
-        return first_ == nullptr;
+        return pre_sentinel_ == nullptr;
     }
 
 
     void PopFront() {
-        if (first_ == nullptr) {
+        if (pre_sentinel_ == nullptr) {
             throw std::runtime_error("Tried PopFront for empty SingleLinkedList");
         }
-        first_ = first_->next;
+        pre_sentinel_ = pre_sentinel_->next;
+        pre_sentinel_->prev.reset();
     }
 
     template<typename T>
-    void Insert(ConstListIterator it, T &&val) {
+    void InsertBefore(ConstListIterator it, T &&val) {
         std::shared_ptr<Node> new_node = std::make_shared<Node>(std::forward<T>(val));
-        if (it.base_ != nullptr) {
+        ListIterator non_const_it = std::weak_ptr<Node>(std::const_pointer_cast<Node>(it.Base().lock()));
+        new_node->prev = non_const_it.Base().lock()->prev;
+        new_node->next = non_const_it.Base().lock();
+        non_const_it.Base().lock()->prev.lock()->next = new_node;
+        non_const_it.Base().lock()->prev = new_node;
+    }
 
-        }
+    void Erase(ConstListIterator it) {
+//        ListIterator non_const_it = SharedConstCast(it.base_);
+//        non_const_it.Base()->next->prev = non_const_it.Base()->prev;
+//        non_const_it.Base()->prev->next = non_const_it.Base()->next;
     }
 
 private:
-    std::shared_ptr<Node> first_, last_;
-
-
-    static bool Cmp(ConstListIterator lhs, ConstListIterator rhs, bool(*)(Value,Value)) {
-
-    }
+    std::shared_ptr<Node> pre_sentinel_;
 
     static std::pair<std::shared_ptr<Node>, std::shared_ptr<Node>> Sort(std::shared_ptr<Node> beg) {
         if (beg->next == nullptr) return std::pair(beg, beg);
@@ -292,7 +325,7 @@ private:
             rabbit = rabbit->next->next;
             turtle = turtle->next;
         }
-        turtle->prev->next = nullptr;
+        turtle->prev.lock()->next = nullptr;
 
         std::shared_ptr<Node> l, ml, mr, r;
         std::tie(l, ml) = Sort(beg);
@@ -347,8 +380,15 @@ private:
             }
             beg2 = beg2->next;
         }
-        ans_beg->prev = nullptr;
-        ans_back->next = nullptr;
+        ans_beg->prev.reset();
+        ans_back->next.reset();
         return std::pair(ans_beg, ans_back);
+    }
+
+    static std::shared_ptr<Node> ConstructSentinel() {
+        std::shared_ptr<Node> ptr = std::make_shared<Node>();
+        ptr->next = ptr;
+        ptr->prev = ptr;
+        return ptr;
     }
 };
