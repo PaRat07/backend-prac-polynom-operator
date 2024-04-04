@@ -13,7 +13,7 @@ std::string Polynomial::ToString() const {
     for (const Monomial &m : data_) {
         ans = m.ToString() + ans;
     }
-    return ans.empty() || ans[0] != '+' ? ans : ans.substr(1);
+    return ans.empty() ? "0" : ans[0] != '+' ? ans : ans.substr(1);
 }
 
 Polynomial Polynomial::operator+(const Polynomial &rhs) const {
@@ -217,5 +217,10 @@ Polynomial operator ""_p(const char *data, size_t size) {
 
 std::ostream &operator<<(std::ostream &out, const Polynomial &p) {
     out << p.ToString();
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &out, const Polynomial::DivisionResult &dr) {
+    out << dr.whole_num << " + (" << dr.num << ") / (" << dr.den << ")";
     return out;
 }

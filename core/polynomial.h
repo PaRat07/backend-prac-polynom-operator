@@ -55,3 +55,4 @@ struct Polynomial::DivisionResult {
 Polynomial operator""_p(const char *data, size_t size);
 
 std::ostream &operator<<(std::ostream &out, const Polynomial &p);
+std::ostream &operator<<(std::ostream &out, const Polynomial::DivisionResult &dr);
