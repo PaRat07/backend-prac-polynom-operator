@@ -40,8 +40,10 @@ std::string Monomial::ToString() const {
     }
     if (factor != 1 || std::accumulate(powers.begin(), powers.end(), 0) == 0) {
         std::ostringstream sout;
-        sout << factor;
-        ans += sout.str();
+        sout << std::fixed << factor;
+        std::string str = sout.str();
+        std::string_view sv = str;
+        ans += sv.substr(0, sv.find_last_not_of('0'));
     }
     for (int i = 0; i < 26; ++i) {
         if (powers[i] > 0) {

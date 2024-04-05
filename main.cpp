@@ -11,7 +11,7 @@
 int main() {
 
 
-    std::cout << "x-7"_p * "x-7"_p * "x-7"_p * "x-7"_p * "x-7"_p * "x-7"_p << std::endl;
+    std::cout << "x-7"_p * "x-7"_p * "x-7"_p * "x-7"_p * "x-7"_p * "x-7"_p * "x-7"_p * "x-7"_p << std::endl;
 
     return 0;
 ////    std::map<int, SingleLinkedList<Polynomial>> db;
