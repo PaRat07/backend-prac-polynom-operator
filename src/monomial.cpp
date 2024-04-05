@@ -42,8 +42,10 @@ std::string Monomial::ToString() const {
         std::ostringstream sout;
         sout << std::fixed << factor;
         std::string str = sout.str();
-        std::string_view sv = str;
-        ans += sv.substr(0, sv.find_last_not_of('0'));
+        while (!str.empty() && (str.back() == '.' || str.back() == '0')) {
+            str.pop_back();
+        }
+        ans += str;
     }
     for (int i = 0; i < 26; ++i) {
         if (powers[i] > 0) {

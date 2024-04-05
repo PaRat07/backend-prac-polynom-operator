@@ -104,7 +104,7 @@ Polynomial::DivisionResult Polynomial::operator/(const Polynomial &rhs) const {
         }
     }
     DivisionResult res;
-    while (this_copy.data_.Back().powers[letter] >= rhs.data_.Back().powers[letter]) {
+    while (!this_copy.data_.Empty() && this_copy.data_.Back().powers[letter] >= rhs.data_.Back().powers[letter]) {
         Monomial to_mul;
         to_mul.powers.fill(0);
         to_mul.powers[letter] = this_copy.data_.Back().powers[letter] - rhs.data_.Back().powers[letter];

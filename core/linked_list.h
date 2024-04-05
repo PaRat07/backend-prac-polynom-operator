@@ -199,6 +199,7 @@ public:
 
     LinkedList<Value_t> &operator=(LinkedList<Value_t> &&other) noexcept {
         std::swap(pre_sentinel_, other.pre_sentinel_);
+        std::swap(size_, other.size_);
         return *this;
     }
 
@@ -288,6 +289,7 @@ public:
         ListIterator non_const_it = const_cast<Node*>(it.Base());
         non_const_it.Base()->next->prev = non_const_it.Base()->prev;
         non_const_it.Base()->prev->next = non_const_it.Base()->next;
+        --size_;
     }
 
     size_t Size() const {
