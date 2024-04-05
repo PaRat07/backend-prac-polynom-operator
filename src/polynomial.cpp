@@ -127,7 +127,7 @@ double Polynomial::GetValueAt(const std::array<int, 26> &vals) const {
     });
 }
 
-SingleLinkedList<int> Polynomial::GetIntegerRoots() const {
+LinkedList<int> Polynomial::GetIntegerRoots() const {
     int letter = -1;
     for (const Monomial &m : data_) {
         for (int i = 0; i < 26; ++i) {
@@ -141,7 +141,7 @@ SingleLinkedList<int> Polynomial::GetIntegerRoots() const {
             }
         }
     }
-    SingleLinkedList<int> ans;
+    LinkedList<int> ans;
     if (data_.Empty() || data_.Front().powers[letter] != 0) {
         return ans;
     }
@@ -174,7 +174,7 @@ SingleLinkedList<int> Polynomial::GetIntegerRoots() const {
 
 void Polynomial::Normalize() {
     data_.Sort();
-    SingleLinkedList<Monomial> new_data;
+    LinkedList<Monomial> new_data;
     for (const Monomial &m : data_) {
         if (m.factor == 0) continue;
 
@@ -202,7 +202,7 @@ Polynomial Polynomial::GetDerivative() const {
         }
     }
 
-    SingleLinkedList<Monomial> ans;
+    LinkedList<Monomial> ans;
     std::transform(data_.begin(), data_.end(), std::back_inserter(ans), [letter] (const Monomial &m) {
         return m.GetDerivative(letter);
     });

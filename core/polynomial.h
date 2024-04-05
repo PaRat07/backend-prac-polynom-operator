@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <numeric>
 
-#include "single_linked_list.h"
+#include "linked_list.h"
 #include "monomial.h"
 #include "parser.h"
 
@@ -35,14 +35,14 @@ public:
 
     double GetValueAt(const std::array<int, 26> &vals) const;
 
-    SingleLinkedList<int> GetIntegerRoots() const;
+    LinkedList<int> GetIntegerRoots() const;
 
 //    SingleLinkedList<int>
 
     Polynomial GetDerivative() const;
 
 private:
-    SingleLinkedList<Monomial> data_;
+    LinkedList<Monomial> data_;
 
 
     void Normalize();

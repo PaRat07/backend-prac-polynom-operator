@@ -4,16 +4,9 @@
 #include <memory>
 #include <list>
 
-// FIXME
-#include <iostream>
-
-//template<typename T>
-//static std::weak_ptr<T> WeakConstCast(std::weak_ptr<const T> ptr) {
-//    return std::weak_ptr<T>(const_cast<T*>(&*ptr.lock()));
-//}
 
 template<typename Value>
-class SingleLinkedList {
+class LinkedList {
 private:
     struct Node {
         template<typename... Args>
@@ -149,12 +142,12 @@ public:
         Node *base_;
     };
 
-    SingleLinkedList()
+    LinkedList()
         : pre_sentinel_(new Node)
     {
     }
 
-    SingleLinkedList(const SingleLinkedList<Value> &other)
+    LinkedList(const LinkedList<Value> &other)
             : pre_sentinel_(new Node)
     {
         std::for_each(other.begin(), other.end(), [&] (const Value &val) {
@@ -162,7 +155,7 @@ public:
         });
     }
 
-    SingleLinkedList(SingleLinkedList &&other)
+    LinkedList(LinkedList &&other)
         : pre_sentinel_(other.pre_sentinel_)
         , size_(other.size_)
     {
@@ -171,7 +164,7 @@ public:
     }
 
     template<typename Iterator>
-    SingleLinkedList(Iterator beg, Iterator end)
+    LinkedList(Iterator beg, Iterator end)
             : pre_sentinel_(new Node)
     {
         std::for_each(beg, end, [&] (auto x) {
@@ -179,7 +172,7 @@ public:
         });
     }
 
-    ~SingleLinkedList() {
+    ~LinkedList() {
         pre_sentinel_->prev->next = nullptr;
         while(pre_sentinel_) {
             Node *buf = pre_sentinel_->next;
@@ -188,7 +181,7 @@ public:
         }
     }
 
-    SingleLinkedList<Value> &operator=(const SingleLinkedList<Value> &other) {
+    LinkedList<Value> &operator=(const LinkedList<Value> &other) {
         if (other.pre_sentinel_ == pre_sentinel_) return *this;
         while(size_ > 0) {
             Node *buf = pre_sentinel_->next;
@@ -204,7 +197,7 @@ public:
         return *this;
     }
 
-    SingleLinkedList<Value> &operator=(SingleLinkedList<Value> &&other) noexcept {
+    LinkedList<Value> &operator=(LinkedList<Value> &&other) noexcept {
         std::swap(pre_sentinel_, other.pre_sentinel_);
         return *this;
     }
@@ -305,12 +298,12 @@ private:
     Node *pre_sentinel_;
     size_t size_ = 0;
 
-    static SingleLinkedList Sort(SingleLinkedList l) {
+    static LinkedList Sort(LinkedList l) {
         if (l.Size() <= 1) {
             return l;
         }
 
-        SingleLinkedList left, right;
+        LinkedList left, right;
         bool to_l = true;
         for (const auto &i : l) {
             if (to_l) {
@@ -325,7 +318,7 @@ private:
 
         auto itl = left.begin();
         auto itr = right.begin();
-        SingleLinkedList ans;
+        LinkedList ans;
         while (itl != left.end() && itr != right.end()) {
             if (*itl < *itr) {
                 ans.push_back(*itl++);
