@@ -5,7 +5,7 @@
 #include <list>
 
 
-template<typename Value>
+template<typename Value_t>
 class LinkedList {
 private:
     struct Node {
@@ -17,16 +17,16 @@ private:
 
         Node *next = this;
         Node *prev = this;
-        Value val;
+        Value_t val;
     };
 
 public:
-    using value_type = Value;
+    using value_type = Value_t;
 
     class ConstListIterator {
     public:
         using iterator_category = std::bidirectional_iterator_tag;
-        using value_type = const Value;
+        using value_type = const Value_t;
         using difference_type = std::ptrdiff_t;
         using pointer = value_type*;
         using reference = value_type&;
@@ -80,7 +80,7 @@ public:
     class ListIterator {
     public:
         using iterator_category = std::bidirectional_iterator_tag;
-        using value_type = Value;
+        using value_type = Value_t;
         using difference_type = std::ptrdiff_t;
         using pointer = value_type*;
         using reference = value_type&;
@@ -147,10 +147,10 @@ public:
     {
     }
 
-    LinkedList(const LinkedList<Value> &other)
+    LinkedList(const LinkedList<Value_t> &other)
             : pre_sentinel_(new Node)
     {
-        std::for_each(other.begin(), other.end(), [&] (const Value &val) {
+        std::for_each(other.begin(), other.end(), [&] (const Value_t &val) {
             push_back(val);
         });
     }
@@ -181,7 +181,7 @@ public:
         }
     }
 
-    LinkedList<Value> &operator=(const LinkedList<Value> &other) {
+    LinkedList<Value_t> &operator=(const LinkedList<Value_t> &other) {
         if (other.pre_sentinel_ == pre_sentinel_) return *this;
         while(size_ > 0) {
             Node *buf = pre_sentinel_->next;
@@ -197,7 +197,7 @@ public:
         return *this;
     }
 
-    LinkedList<Value> &operator=(LinkedList<Value> &&other) noexcept {
+    LinkedList<Value_t> &operator=(LinkedList<Value_t> &&other) noexcept {
         std::swap(pre_sentinel_, other.pre_sentinel_);
         return *this;
     }
@@ -245,19 +245,19 @@ public:
         *this = Sort(*this);
     }
 
-    Value &Front() {
+    Value_t &Front() {
         return pre_sentinel_->val;
     }
 
-    const Value &Front() const {
+    const Value_t &Front() const {
         return pre_sentinel_->val;
     }
 
-    Value &Back() {
+    Value_t &Back() {
         return pre_sentinel_->prev->val;
     }
 
-    const Value &Back() const {
+    const Value_t &Back() const {
         return pre_sentinel_->prev->val;
     }
 
