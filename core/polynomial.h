@@ -50,6 +50,10 @@ private:
 
 struct Polynomial::DivisionResult {
     Polynomial den, num, whole_num;
+
+    std::string ToString() const {
+        return whole_num.ToString() + "+\frac{" + num.ToString() + "}{" + den.ToString() + "}";
+    }
 };
 
 Polynomial operator""_p(const char *data, size_t size);

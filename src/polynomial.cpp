@@ -36,7 +36,7 @@ Polynomial Polynomial::operator+(const Polynomial &rhs) const {
         ans.data_.push_back(*it1);
         ++it1;
     }
-    while (it2 != data_.end()) {
+    while (it2 != rhs.data_.end()) {
         ans.data_.push_back(*it2);
         ++it2;
     }
