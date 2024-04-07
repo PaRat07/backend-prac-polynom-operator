@@ -59,6 +59,9 @@ public:
                     state.prev = Prev::SIGN;
                     break;
                 }
+                case '{':
+                case '}':
+                    continue;
                 default: {
                     if (to_parse_[0] >= '0' && to_parse_[0] <= '9') {
                         switch (state.prev) {
@@ -94,7 +97,7 @@ public:
                         state.cur_letter = to_parse_[0];
                         state.prev = Prev::LETTER;
                     } else {
-                        throw std::invalid_argument("Unexpected character" + std::string(to_parse_.substr(0, 1)) + " at pos " + std::to_string(data_.size() - to_parse_.size()));
+                        throw std::invalid_argument("Unexpected character " + std::string(to_parse_.substr(0, 1)) + " at pos " + std::to_string(data_.size() - to_parse_.size()));
                     }
                     break;
                 }
