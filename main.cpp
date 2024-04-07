@@ -93,6 +93,12 @@ int main() {
         res.status = 500;
     });
 
+
+    svr.set_post_routing_handler([](const auto& req, auto& res) {
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Headers", "*");
+    });
+
     svr.listen("0.0.0.0", 4242);
 
 
