@@ -7,6 +7,8 @@
 #include "json/json.h"
 
 int main() {
+//    std::cout << "x^123"_p + "x^2123"_p << std::endl;
+//    return 0;
     constexpr auto path = "../db.txt";
 
     httplib::Server svr;
@@ -82,7 +84,7 @@ int main() {
     });
 
     svr.Post("/polynomial/reset_db", [&path] (const httplib::Request& req, httplib::Response& res) {
-        std::ifstream fin(path, std::ios::trunc);
+        std::ofstream(path, std::ios::trunc);
     });
 
     svr.Get("/polynomial/get_nth_derivative", [] (const httplib::Request& req, httplib::Response& res) {

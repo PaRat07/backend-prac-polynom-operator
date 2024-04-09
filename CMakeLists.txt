@@ -3,11 +3,30 @@ project(prac-polynom-operator)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -std=c++20")
 
+include(FetchContent)
+FetchContent_Declare(SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 2.6.x)
+FetchContent_MakeAvailable(SFML)
+
 
 add_subdirectory(core)
 
 add_executable(${PROJECT_NAME}
         main.cpp
+        src/turing_machine.cpp
+        src/tape.cpp
+        src/table.cpp
+        src/window.cpp
+        src/button.cpp
+        src/center_positioned_string.cpp
+        src/general_data.cpp
+        src/window_manager.cpp
+        elements/tape_head.h
+        src/tape_head.cpp
+        app/colors.h
+        src/colors.cpp
+        src/inoutput_field.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} polynom)
