@@ -4,7 +4,6 @@
 sf::Font LoadFont(std::string path) {
     sf::Font ans;
     ans.loadFromFile(path);
-    std::cout << "sdjhbfjhbsdf" << std::endl;
     return ans;
 }
 

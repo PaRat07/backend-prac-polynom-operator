@@ -28,11 +28,30 @@ void InputField::ProcessEvent(sf::Event event) {
 void InputField::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     sf::Vector2f real_size(size_.x * win_size.x, size_.y * win_size.y), real_pos(pos_.x * win_size.x,
                                                                                  pos_.y * win_size.y);
-    RoundedRectangleShape<3> rect(real_size);
-    rect.setPosition(real_pos);
-    rect.setOutlineThickness(0);
-    rect.setFillColor(surface_container_highest);
-    target.draw(rect);
+    {
+        RoundedRectangleShape rect(real_size);
+        rect.setRoundRadius(10);
+        rect.setPosition(real_pos);
+        rect.setOutlineThickness(0);
+        rect.setFillColor(surface_container_highest);
+        target.draw(rect);
+    }
+
+    {
+        sf::RectangleShape rect;
+        rect.setSize(sf::Vector2f(real_size.x, real_size.y / 2));
+        rect.setFillColor(surface_container_highest);
+        rect.setPosition(real_pos.x, real_pos.y + real_size.y / 2);
+        target.draw(rect);
+    }
+
+    {
+        sf::RectangleShape rect;
+        rect.setSize(sf::Vector2f(real_size.x, size_.y / 2));
+        rect.setFillColor(primary);
+        rect.setPosition(pos_.x, pos_.y + size_.y / 2);
+        target.draw(rect);
+    }
 
     if (active_) {
         sf::RectangleShape under(sf::Vector2f(real_size.x, 3));

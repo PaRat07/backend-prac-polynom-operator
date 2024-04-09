@@ -1,10 +1,11 @@
 #include "../elements/button.h"
 
 void ButtonWithImage::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    RoundedRectangleShape<5> rect(size_);
+    RoundedRectangleShape rect(size_);
+    rect.setRoundRadius(5);
     rect.setPosition(pos_);
     rect.setOutlineThickness(0);
-    rect.setFillColor(primary_container);
+    rect.setFillColor(primary);
     rect.setPosition(pos_);
     target.draw(rect);
 
@@ -39,16 +40,17 @@ ButtonWithImage::ButtonWithImage(sf::Vector2f pos, sf::Vector2f sz, std::string 
 void ButtonWithTextRelativePos::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     sf::Vector2f real_pos(pos_.x * win_size.x, pos_.y * win_size.y);
     sf::Vector2f real_size(size_.x * win_size.x, size_.y * win_size.y);
-    RoundedRectangleShape<5> rect(real_size);
+    RoundedRectangleShape rect(real_size);
+    rect.setRoundRadius(real_size.y / 2);
     rect.setOutlineThickness(0);
-    rect.setFillColor(primary_container);
+    rect.setFillColor(primary);
     rect.setPosition(real_pos);
     target.draw(rect);
 
 
     CenterPositionedString str;
     str.setString(text_);
-    str.setTextColor(on_primary_container);
+    str.setTextColor(on_primary);
     str.setPosition(sf::Vector2f(real_pos.x + real_size.x / 2, real_pos.y + real_size.y / 2));
     target.draw(str);
 }
@@ -71,16 +73,17 @@ ButtonWithTextRelativePos::ButtonWithTextRelativePos(sf::Vector2f pos, sf::Vecto
 {}
 
 void ButtonWithTextAbsPos::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    RoundedRectangleShape<5> rect(size_);
+    RoundedRectangleShape rect(size_);
+    rect.setRoundRadius(size_.y / 2);
     rect.setOutlineThickness(0);
-    rect.setFillColor(primary_container);
+    rect.setFillColor(primary);
     rect.setPosition(pos_);
     target.draw(rect);
 
 
     CenterPositionedString str;
     str.setString(text_);
-    str.setTextColor(on_primary_container);
+    str.setTextColor(on_primary);
     str.setPosition(sf::Vector2f(pos_.x + size_.x / 2, pos_.y + size_.y / 2));
     target.draw(str);
 }

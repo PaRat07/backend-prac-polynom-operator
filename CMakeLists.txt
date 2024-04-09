@@ -14,20 +14,19 @@ add_subdirectory(core)
 
 add_executable(${PROJECT_NAME}
         main.cpp
-        src/turing_machine.cpp
-        src/tape.cpp
         src/table.cpp
         src/window.cpp
         src/button.cpp
         src/center_positioned_string.cpp
         src/general_data.cpp
         src/window_manager.cpp
-        elements/tape_head.h
-        src/tape_head.cpp
         app/colors.h
         src/colors.cpp
         src/inoutput_field.cpp
+        src/table.cpp
+        src/rounded_rectangle.cpp
+
 )
 
-target_link_libraries(${PROJECT_NAME} polynom)
-target_link_libraries(${PROJECT_NAME} jsoncpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE polynom)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)

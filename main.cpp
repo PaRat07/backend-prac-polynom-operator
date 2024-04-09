@@ -1,142 +1,79 @@
-#include <iostream>
-#include <map>
+#include "bits/stdc++.h"
 
-#include "extern/cpp-httplib/httplib.h"
+#include "app/window_manager.h"
+#include "app/window.h"
+#include "elements/table.h"
 
 #include "core/polynomial.h"
-#include "json/json.h"
+
+using namespace std;
+
+sf::Vector2f win_size = {1000, 1000};
+sf::Uint32 lambda(L'\u03BB');
+long animation_time = 1500;
+
+class DataBase : public Table {
+public:
+    DataBase() {
+        std::string line;
+        std::ifstream fin(path);
+        while (std::getline(fin, line)) {
+            if (line.empty()) continue;
+            data_.push_back(std::move(line));
+        }
+    }
+
+    ~DataBase() {
+        std::ofstream fout(path, std::ios::trunc);
+        for (std::string_view sv : data_) {
+            fout << sv << '\n';
+        }
+    }
+
+    virtual sf::String GetValue(sf::Vector2i pos) const override {
+        return data_[pos.y];
+    }
+
+    virtual sf::Vector2i Size() const override {
+        return { 1, static_cast<int>(data_.size()) };
+    }
+
+    virtual sf::String GetLineName(int pos) const override {
+        return std::to_string(pos);
+    }
+
+    virtual void EraseLine(int pos) override {
+        data_.erase(data_.begin() + pos);
+    }
+
+    virtual sf::String GetColumnName(int pos) const override { return {}; }
+    virtual void SetValue(sf::Vector2i pos, sf::String value) override {}
+    virtual void EraseColumn(int pos) override {}
+
+    void AddLine(std::string s) {
+        data_.push_back(std::move(s));
+    }
+
+    constexpr static auto path = "../db.txt";
+
+private:
+    std::vector<std::string> data_;
+};
 
 int main() {
-//    std::cout << "x^123"_p + "x^2123"_p << std::endl;
-//    return 0;
-    constexpr auto path = "../db.txt";
+    DataBase db;
 
-    httplib::Server svr;
-
-    svr.Get("/ping",  [] (const httplib::Request& req, httplib::Response& res) {
-        Json::Value ans;
-        ans["response"] = "HUUUUUUUUY";
-        res.set_content(ans.toStyledString(), "application/json");
-    });
-
-    svr.Get("/polynomial/add",  [] (const httplib::Request& req, httplib::Response& res) {
-        Polynomial lhs(req.get_param_value("lhs")), rhs(req.get_param_value("rhs"));
-        Json::Value ans;
-        ans["response"]["res"] = (lhs + rhs).ToString();
-        res.set_content(ans.toStyledString(), "application/json");
-    });
-
-    svr.Get("/polynomial/multiply",  [] (const httplib::Request& req, httplib::Response& res) {
-        Polynomial lhs(req.get_param_value("lhs")), rhs(req.get_param_value("rhs"));
-        Json::Value ans;
-        ans["response"]["res"] = (lhs * rhs).ToString();
-        res.set_content(ans.toStyledString(), "application/json");
-    });
-
-    svr.Get("/polynomial/divide",  [] (const httplib::Request& req, httplib::Response& res) {
-        Polynomial lhs(req.get_param_value("lhs")), rhs(req.get_param_value("rhs"));
-        Json::Value ans;
-        ans["response"]["res"] = (lhs / rhs).ToString();
-        res.set_content(ans.toStyledString(), "application/json");
-    });
-
-    svr.Post("/polynomial/add_to_base", [&path] (const httplib::Request& req, httplib::Response& res) {
-        if (!req.has_param("polynomial") || req.get_param_value("polynomial") == "") {
-            throw std::invalid_argument("Empty polinomial");
-        }
-        Polynomial p(req.get_param_value("polynomial"));
-        std::ofstream fout(path, std::ios::app);
-        fout << p.ToString() << std::endl;
-        res.set_content("{\"response\": \"OK\"}", "application/json");
-    });
-
-    svr.Post("/polynomial/remove_from_base", [&path] (const httplib::Request& req, httplib::Response& res) {
-        Json::Value ans;
-        std::ifstream fin(path);
-        std::vector<std::string> new_base;
-        while (fin) {
-            std::string line;
-            std::getline(fin, line);
-            if (line != req.get_param_value("to_remove") && !line.empty()) {
-                new_base.push_back(line);
-            }
-        }
-        std::ofstream fout(path, std::ios::trunc);
-        for (std::string_view sv : new_base) {
-            fout << sv << std::endl;
-        }
-        res.set_content("OK", "tex/plain");
-    });
-
-    svr.Get("/polynomial/get_polynomials", [&path] (const httplib::Request& req, httplib::Response& res) {
-        Json::Value ans;
-        std::ifstream fin(path);
-        int ind = 0;
-        ans["response"] = Json::arrayValue;
-        while (fin) {
-            std::string line;
-            std::getline(fin, line);
-            if (!line.empty()) {
-                ans["response"][ind++] = line;
-            }
-        }
-        res.set_content(ans.toStyledString(), "application/json");
-    });
-
-    svr.Post("/polynomial/reset_db", [&path] (const httplib::Request& req, httplib::Response& res) {
-        std::ofstream(path, std::ios::trunc);
-    });
-
-    svr.Get("/polynomial/get_nth_derivative", [] (const httplib::Request& req, httplib::Response& res) {
-        Polynomial p(req.get_param_value("polynomial"));
-        int n = std::stoi(req.get_param_value("n"));
-        while (n--) {
-            p = p.GetDerivative();
-        }
-        Json::Value ans;
-        ans["response"]["res"] = p.ToString();
-        res.set_content(ans.toStyledString(), "application/json");
-    });
-
-
-    svr.Get("/polynomial/get_value_at", [] (const httplib::Request& req, httplib::Response& res) {
-        Polynomial p(req.get_param_value("polynomial"));
-        std::array<int, 26> val;
-        val.fill(1e6);
-        for (int i = 0; i < 26; ++i) {
-            if (req.has_param(std::string('a' + i, 1))) {
-                val[i] = std::stoi(req.get_param_value(std::string('a' + i, 1)));
-            }
-        }
-        Json::Value ans;
-        ans["response"]["res"] = p.GetValueAt(val);
-        res.set_content(ans.toStyledString(), "application/json");
-    });
-
-
-
-
-    svr.set_exception_handler([](const httplib::Request& req, httplib::Response& res, std::exception_ptr ex) {
-        Json::Value json;
-        try {
-            if (ex) {
-                std::rethrow_exception(ex);
-            }
-        } catch (const std::exception& e) {
-            json["response"]["err"] = e.what();
-        }
-
-        res.set_content(json.toStyledString(), "application/json");
-        res.status = 400;
-    });
-
-
-    svr.set_post_routing_handler([](const auto& req, auto& res) {
-        res.set_header("Access-Control-Allow-Origin", "*");
-        res.set_header("Access-Control-Allow-Headers", "*");
-    });
-
-    svr.listen("0.0.0.0", 4242);
-
-
+    Window win;
+    {
+        win.AddElement(std::make_unique<TableElement>(sf::Vector2f(10, 10), sf::Vector2f(700, 980), db));
+        auto new_pol = std::make_unique<InputField>(sf::Vector2f(710, 10), sf::Vector2f(280, 40), "New polynom");
+        win.AddElement(std::make_unique<ButtonWithTextRelativePos>(sf::Vector2f(710, 60), sf::Vector2f(100, 45),
+                                                                            "Add", [&db, data = &*new_pol] () {
+            db.AddLine(data->GetText());
+        }));
+        win.AddElement(std::move(new_pol));
+    }
+    WindowManager wm;
+    wm.AddWindow(std::move(win));
+    wm.Start();
 }

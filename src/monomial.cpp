@@ -52,9 +52,9 @@ std::string Monomial::ToString() const {
             ans.push_back('a' + i);
             if (powers[i] > 1) {
                 ans.push_back('^');
-                ans.push_back('{');
+//                ans.push_back('{');
                 ans += std::to_string(powers[i]);
-                ans.push_back('}');
+//                ans.push_back('}');
             }
         }
     }

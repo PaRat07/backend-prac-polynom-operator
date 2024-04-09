@@ -1,5 +1,5 @@
 #include "SFML/Graphics.hpp"
-
+#include <stdexcept>
 
 extern sf::Color primary;
 extern sf::Color surface_tint;

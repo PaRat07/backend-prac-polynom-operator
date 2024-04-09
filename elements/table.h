@@ -28,6 +28,7 @@ public:
 class TableElement : public AbstractElement {
 public:
     static sf::Vector2i cell_size;
+    static sf::Vector2i header_size;
 
     TableElement(sf::Vector2f pos, sf::Vector2f size, Table &machine);
 

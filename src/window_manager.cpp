@@ -12,7 +12,7 @@ void WindowManager::Start() {
                 win.close();
                 return;
             }
-            win.clear(background);
+            win.clear(surface);
             if (anim_) {
                 auto cur_time = std::chrono::steady_clock::now();
                 if (anim_.has_value() && cur_time > anim_->end) {
@@ -24,7 +24,7 @@ void WindowManager::Start() {
                     {
                         sf::RenderTexture from;
                         from.create(win_size.x, win_size.y);
-                        from.clear(background);
+                        from.clear(surface);
                         from.draw(windows_[anim_->from]);
                         from.display();
                         sf::Sprite sprite;
@@ -36,7 +36,7 @@ void WindowManager::Start() {
                     {
                         sf::RenderTexture to;
                         to.create(win_size.x, win_size.y);
-                        to.clear(background);
+                        to.clear(surface);
                         to.draw(windows_[anim_->to]);
                         to.display();
                         sf::Sprite sprite;
