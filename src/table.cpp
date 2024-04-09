@@ -82,12 +82,14 @@ void TableElement::draw(sf::RenderTarget &target, sf::RenderStates states) const
         qs.create(header_size.x * 2, real_size.y - cell_size.y * 2 - 24);
         qs.clear(sf::Color::Transparent);
         CenterPositionedString str;
+        buttons_qs_mutex_.lock();
         for (int i = -pos_in_.y / cell_size.y; i < machine_.Size().y && i * cell_size.y + pos_in_.y < std::min(real_size.y, machine_.Size().y * cell_size.y); ++i) {
             str.setString(machine_.GetLineName(i));
             str.setPosition(sf::Vector2f(header_size.x * 1.5, i * cell_size.y + cell_size.y / 2 + pos_in_.y));
             qs.draw(str);
             qs.draw(buttons_qs_[i]);
         }
+        buttons_qs_mutex_.unlock();
         sf::RectangleShape line(sf::Vector2f(header_size.x * 2, 2));
         line.setFillColor(outline);
 
@@ -141,7 +143,7 @@ void TableElement::draw(sf::RenderTarget &target, sf::RenderStates states) const
     // hor line(not texture)
     {
         sf::RectangleShape legend_border(sf::Vector2f(std::min(real_size.x - 24, machine_.Size().x * cell_size.x + header_size.x * 2), 2));
-        legend_border.setFillColor(sf::Color::Red);
+        legend_border.setFillColor(outline);
         legend_border.setPosition(sf::Vector2f(pos_.x * win_size.x + 12, pos_.y * win_size.y + 12));
         target.draw(legend_border);
     }
@@ -157,7 +159,7 @@ void TableElement::draw(sf::RenderTarget &target, sf::RenderStates states) const
     // frame
     {
         sf::RectangleShape table_border(sf::Vector2f(std::min(real_size.x - 24, (machine_.Size().x + 2) * cell_size.x - 2), std::min(real_size.y - 24, (machine_.Size().y + 2) * cell_size.y - 2)));
-        table_border.setPosition(sf::Vector2f(pos_.x * win_size.x + 14, pos_.y * win_size.y + 14));
+        table_border.setPosition(sf::Vector2f(pos_.x * win_size.x + 12, pos_.y * win_size.y + 12));
         table_border.setFillColor(sf::Color::Transparent);
         table_border.setOutlineThickness(2);
         table_border.setOutlineColor(outline);

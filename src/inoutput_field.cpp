@@ -53,7 +53,7 @@ void InputField::draw(sf::RenderTarget &target, sf::RenderStates states) const {
         target.draw(rect);
     }
 
-    if (active_) {
+    if (active_ || !data_.empty()) {
         sf::RectangleShape under(sf::Vector2f(real_size.x, 3));
         under.setPosition(real_pos.x, real_pos.y + real_size.y - 3);;
         under.setFillColor(on_surface_variant);
@@ -108,9 +108,10 @@ void InputField::Write(sf::Uint32 event) {
 }
 
 
-OutputField::OutputField(sf::Vector2f pos, sf::Vector2f size)
+OutputField::OutputField(sf::Vector2f pos, sf::Vector2f size, std::string label)
         : pos_(pos.x / win_size.x, pos.y / win_size.y)
         , size_(size.x / win_size.x, size.y / win_size.y)
+        , label_(std::move(label))
 {}
 
 
@@ -123,23 +124,73 @@ void OutputField::ProcessEvent(sf::Event event) {
 
 
 void OutputField::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    sf::RectangleShape rect(sf::Vector2f(size_.x * win_size.x, size_.y * win_size.y));
-    rect.setPosition(sf::Vector2f(pos_.x * win_size.x, pos_.y * win_size.y));
-    rect.setOutlineThickness(0);
-    rect.setFillColor(primary);
-    rect.setOutlineThickness(2);
-    target.draw(rect);
+    sf::Vector2f real_size(size_.x * win_size.x, size_.y * win_size.y), real_pos(pos_.x * win_size.x,
+                                                                                 pos_.y * win_size.y);
+    {
+        RoundedRectangleShape rect(real_size);
+        rect.setRoundRadius(10);
+        rect.setPosition(real_pos);
+        rect.setOutlineThickness(0);
+        rect.setFillColor(surface_container_highest);
+        target.draw(rect);
+    }
 
-    sf::Text text;
-    text.setFont(font);
-    text.setString(data_);
-    text.setCharacterSize(letter_size);
-    text.setPosition(sf::Vector2f(pos_.x, pos_.y + size_.y / 2));
-    text.setFillColor(on_primary);
-    target.draw(text);
+    {
+        sf::RectangleShape rect;
+        rect.setSize(sf::Vector2f(real_size.x, real_size.y / 2));
+        rect.setFillColor(surface_container_highest);
+        rect.setPosition(real_pos.x, real_pos.y + real_size.y / 2);
+        target.draw(rect);
+    }
+
+    {
+        sf::RectangleShape rect;
+        rect.setSize(sf::Vector2f(real_size.x, size_.y / 2));
+        rect.setFillColor(primary);
+        rect.setPosition(pos_.x, pos_.y + size_.y / 2);
+        target.draw(rect);
+    }
+
+    if (!data_.empty()) {
+        sf::RectangleShape under(sf::Vector2f(real_size.x, 3));
+        under.setPosition(real_pos.x, real_pos.y + real_size.y - 3);;
+        under.setFillColor(on_surface_variant);
+        target.draw(under);
+
+        sf::Text data;
+        data.setString(data_);
+        data.setFont(font);
+        data.setCharacterSize(letter_size);
+        data.setFillColor(on_surface);
+        data.setPosition(real_pos.x + 10, real_pos.y + real_size.y * 0.5 - data.getLocalBounds().height * 0.5);
+        target.draw(data);
+
+        sf::Text label;
+        data.setString(label_);
+        data.setFont(font);
+        data.setCharacterSize(letter_size / 2);
+        data.setFillColor(on_surface);
+        data.setPosition(real_pos.x + 10, real_pos.y + real_size.y * 0.25 - data.getLocalBounds().height * 0.5);
+        target.draw(data);
+    } else {
+        sf::RectangleShape under(sf::Vector2f(real_size.x, 3));
+        under.setPosition(real_pos.x, real_pos.y + real_size.y - 3);
+        under.setFillColor(on_surface);
+        target.draw(under);
+
+        CenterPositionedString label;
+        label.setString(label_);
+        label.setTextColor(on_surface);
+        label.setPosition(real_pos.x + real_size.x / 2, real_pos.y + real_size.y / 2);
+        target.draw(label);
+    }
 }
 
 
 void OutputField::SetText(std::string s) {
     data_ = std::move(s);
+}
+
+std::string OutputField::GetText() const {
+    return data_;
 }

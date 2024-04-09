@@ -43,7 +43,7 @@ private:
 
 class OutputField : public AbstractElement {
 public:
-    OutputField(sf::Vector2f pos, sf::Vector2f size);
+    OutputField(sf::Vector2f pos, sf::Vector2f size, std::string label);
 
     void ProcessEvent(sf::Event event) override;
 
@@ -51,8 +51,10 @@ public:
 
     void SetText(std::string s);
 
+    std::string GetText() const;
 private:
     sf::Vector2f pos_, size_;
     std::string data_;
+    std::string label_;
     bool active_ = false;
 };
