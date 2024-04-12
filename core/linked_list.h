@@ -247,11 +247,11 @@ public:
     }
 
     Value_t &Front() {
-        return pre_sentinel_->val;
+        return pre_sentinel_->next->val;
     }
 
     const Value_t &Front() const {
-        return pre_sentinel_->val;
+        return pre_sentinel_->next->val;
     }
 
     Value_t &Back() {

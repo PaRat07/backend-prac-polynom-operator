@@ -28,7 +28,7 @@ void TableElement::draw(sf::RenderTarget &target, sf::RenderStates states) const
         net_texture.setActive();
         net_texture.create(real_size.x - header_size.x * 2 - 24, real_size.y - cell_size.y * 2 - 24);
         net_texture.clear(surface_container);
-        sf::RectangleShape line(sf::Vector2f(std::min(real_size.x - 24, machine_.Size().x * cell_size.x), 2));
+        sf::RectangleShape line(sf::Vector2f(real_size.x - 24, 2));
         line.setFillColor(outline);
         for (int i = pos_in_.y % cell_size.y; i < std::min(real_size.y, machine_.Size().y * cell_size.y); i += cell_size.y) {
             line.setPosition(0, i);
@@ -40,7 +40,7 @@ void TableElement::draw(sf::RenderTarget &target, sf::RenderStates states) const
         line.setSize(sf::Vector2f(2, std::min(real_size.y - 24, machine_.Size().y * cell_size.y)));
         for (int i = pos_in_.x % cell_size.x; i <= std::min(real_size.x, machine_.Size().x * cell_size.x); i += cell_size.x) {
             line.setPosition(i, 0);
-            net_texture.draw(line);
+//            net_texture.draw(line);
         }
 
         {
@@ -137,14 +137,14 @@ void TableElement::draw(sf::RenderTarget &target, sf::RenderStates states) const
         sf::Sprite sprite;
         sprite.setPosition(cell_size.x * 2 + 12 + pos_.x * win_size.x, 12 + pos_.y * win_size.y);
         sprite.setTexture(syms.getTexture());
-        target.draw(sprite);
+//        target.draw(sprite);
     }
 
     // hor line(not texture)
     {
-        sf::RectangleShape legend_border(sf::Vector2f(std::min(real_size.x - 24, machine_.Size().x * cell_size.x + header_size.x * 2), 2));
+        sf::RectangleShape legend_border(sf::Vector2f(real_size.x - header_size.x * 2 - 22, 2));
         legend_border.setFillColor(outline);
-        legend_border.setPosition(sf::Vector2f(pos_.x * win_size.x + 12, pos_.y * win_size.y + 12));
+        legend_border.setPosition(sf::Vector2f(pos_.x * win_size.x + 12 + header_size.x * 2, pos_.y * win_size.y + 12 + cell_size.y * 2));
         target.draw(legend_border);
     }
 
@@ -186,10 +186,11 @@ void TableElement::ProcessEvent(sf::Event event) {
             break;
         }
         case sf::Event::EventType::MouseButtonPressed: {
+
             {
                 sf::Event ev_for_buts = event;
                 ev_for_buts.mouseButton.y -= 12;
-                ev_for_buts.mouseButton.x -= cell_size.x * 2 + 12;
+                ev_for_buts.mouseButton.x -= header_size.x * 2 + 12;
                 buttons_syms_mutex_.lock();
                 std::for_each(buttons_syms_.begin(), buttons_syms_.end(),
                               [&ev_for_buts](ButtonWithTextAbsPos &but) {
@@ -197,7 +198,7 @@ void TableElement::ProcessEvent(sf::Event event) {
                               });
                 buttons_syms_mutex_.unlock();
                 ev_for_buts = event;
-                ev_for_buts.mouseButton.y -= cell_size.y * 2 + 12;
+                ev_for_buts.mouseButton.y -= header_size.y * 2 + 12;
                 ev_for_buts.mouseButton.x -= 12;
                 buttons_qs_mutex_.lock();
                 std::for_each(buttons_qs_.begin(), buttons_qs_.end(),
@@ -214,12 +215,12 @@ void TableElement::ProcessEvent(sf::Event event) {
             sf::Vector2f pos(event.touch.x / win_size.x, event.touch.y / win_size.y);
             if (std::abs(pos_.x + size_.x / 2 - pos.x) <= size_.x / 2 &&
                 std::abs(pos_.x + size_.x / 2 - pos.x) <= size_.x / 2 &&
-                (event.mouseButton.x - pos_in_.x - 14 - cell_size.x) / cell_size.x - 1 < machine_.Size().x &&
-                (event.mouseButton.y - pos_in_.y - 14 - cell_size.y) / cell_size.y - 1 < machine_.Size().y) {
-                active_pos_.emplace((event.mouseButton.x - pos_in_.x - 14 - cell_size.x) / cell_size.x - 1,
-                                    (event.mouseButton.y - pos_in_.y - 14 - cell_size.y) / cell_size.y - 1);
+                (event.mouseButton.x - pos.x * win_size.x - pos_in_.x - 24 - header_size.x * 2) / cell_size.x - 1 < machine_.Size().x &&
+                ((event.mouseButton.y - pos.y * win_size.y / 2 - 250 - pos_in_.y - 14 - cell_size.y) * 2 / cell_size.y - 1) < machine_.Size().y) {
+                active_pos_.emplace((event.mouseButton.x - pos_in_.x - 24 - header_size.x * 2) / cell_size.x - 1,
+                                    (event.mouseButton.y - pos.y * win_size.y / 2 - 250 - pos_in_.y - 14 - cell_size.y) * 2 / cell_size.y - 1);
                 field.emplace(sf::Vector2f(active_pos_->x * cell_size.x + pos_in_.x + 2,
-                                                active_pos_->y * cell_size.y + pos_in_.y + 2),
+                                           active_pos_->y * cell_size.y + pos_in_.y + 2),
                               sf::Vector2f(cell_size.x - 2, cell_size.y - 2),
                               "Value");
                 field->Activate();

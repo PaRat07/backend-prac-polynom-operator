@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../core/polynomial.h"
 
 Polynomial::Polynomial(const std::string &s) {

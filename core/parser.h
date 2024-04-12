@@ -23,7 +23,7 @@ public:
                         case Prev::CARET:
                         case Prev::NOTHING:
                         case Prev::SIGN:
-                            throw std::invalid_argument("Unexpected caret at position " + std::to_string(data_.size() - to_parse_.size()));
+                            throw std::invalid_argument("Unexpected caret at pos " + std::to_string(data_.size() - to_parse_.size()));
                     }
                     state.prev = Prev::CARET;
                     break;
@@ -50,7 +50,7 @@ public:
                                 state.cur_ans.factor = *state.cur_num;
                                 break;
                             }
-                            throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_parse_.size()));
+                            throw std::invalid_argument("Expected smth at pos " + std::to_string(data_.size() - to_parse_.size()));
 
                     }
                     if (state.prev != Prev::NOTHING) {
@@ -68,7 +68,7 @@ public:
                         switch (state.prev) {
                             case Prev::LETTER:
                             case Prev::NOTHING:
-                                throw std::invalid_argument("Unexpected number at position " + std::to_string(data_.size() - to_parse_.size()));
+                                throw std::invalid_argument("Unexpected num at pos " + std::to_string(data_.size() - to_parse_.size()));
                         }
                         if (!state.cur_num.has_value()) {
                             state.cur_num = 0;
@@ -84,7 +84,7 @@ public:
                                     break;
                                 }
                             case Prev::NOTHING:
-                                throw std::invalid_argument("Unexpected letter at position " + std::to_string(data_.size() - to_parse_.size()));
+                                throw std::invalid_argument("Unexpected letter at pos " + std::to_string(data_.size() - to_parse_.size()));
                             case Prev::LETTER:
                                 state.cur_ans.powers[state.cur_letter - 'a'] += 1;
                                 break;
@@ -98,7 +98,7 @@ public:
                         state.cur_letter = to_parse_[0];
                         state.prev = Prev::LETTER;
                     } else {
-                        throw std::invalid_argument("Unexpected character" + std::string(to_parse_.substr(0, 1)) + " at pos " + std::to_string(data_.size() - to_parse_.size()));
+                        throw std::invalid_argument("Unexpected " + std::string(to_parse_.substr(0, 1)) + " at " + std::to_string(data_.size() - to_parse_.size()));
                     }
                     break;
                 }
@@ -119,7 +119,7 @@ public:
                     state.cur_ans.factor = state.is_gr0 ? *state.cur_num : -*state.cur_num;
                     break;
                 }
-                throw std::invalid_argument("Expected something at position " + std::to_string(data_.size() - to_parse_.size()));
+                throw std::invalid_argument("Expected smth at pos " + std::to_string(data_.size() - to_parse_.size()));
 
         }
         end:;

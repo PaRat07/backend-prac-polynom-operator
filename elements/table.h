@@ -34,7 +34,7 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    void ProcessEvent(sf::Event event) override;
+    virtual void ProcessEvent(sf::Event event) override;
 
 private:
     Table &machine_;
