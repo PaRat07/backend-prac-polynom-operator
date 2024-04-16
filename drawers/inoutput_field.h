@@ -10,7 +10,7 @@
 #include "center_positioned_string.h"
 
 
-class InputField : public AbstractElement {
+class InputField : public AbstractDrawer {
 public:
     InputField(sf::Vector2f pos, sf::Vector2f size, std::string label);
 
@@ -41,7 +41,7 @@ private:
 
 
 
-class OutputField : public AbstractElement {
+class OutputField : public AbstractDrawer {
 public:
     OutputField(sf::Vector2f pos, sf::Vector2f size, std::string label);
 

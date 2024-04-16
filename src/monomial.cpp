@@ -39,9 +39,7 @@ std::string Monomial::ToString() const {
         ans.push_back('+');
     }
     if (factor != 1 || std::accumulate(powers.begin(), powers.end(), 0) == 0) {
-        std::ostringstream sout;
-        sout << std::fixed << factor;
-        std::string str = sout.str();
+        std::string str = std::to_string(factor);
         while (!str.empty() && (str.back() == '.' || str.back() == '0')) {
             str.pop_back();
         }

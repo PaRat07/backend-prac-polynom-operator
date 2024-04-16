@@ -6,10 +6,10 @@
 #include "SFML/Graphics.hpp"
 
 
-class AbstractElement : public sf::Drawable {
+class AbstractDrawer : public sf::Drawable {
 public:
     virtual void ProcessEvent(sf::Event event) = 0;
-    virtual ~AbstractElement() = default;
+    virtual ~AbstractDrawer() = default;
 };
 
 class Window : public sf::Drawable {
@@ -28,5 +28,5 @@ public:
     void ProcessEvent(sf::Event event);
 
 private:
-    std::vector<std::unique_ptr<AbstractElement>> elements_;
+    std::vector<std::unique_ptr<AbstractDrawer>> elements_;
 };

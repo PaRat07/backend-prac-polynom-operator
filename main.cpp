@@ -2,9 +2,13 @@
 
 #include "app/window_manager.h"
 #include "app/window.h"
-#include "elements/table.h"
+#include "drawers/table_drawer.h"
 
 #include "core/polynomial.h"
+#include "drawers/inoutput_field.h"
+#include "drawers/button.h"
+#include "drawers/table_drawer.h"
+#include "drawers/table_header_drawers.h"
 
 using namespace std;
 
@@ -140,7 +144,12 @@ int main() {
 
     Window win;
     {
-        win.AddElement(std::make_unique<TableElement>(sf::Vector2f(10, 10), sf::Vector2f(700, 980), db));
+        win.AddElement(std::make_unique<TableDrawer>(sf::Vector2f(10, 10),
+                                                              sf::Vector2f(700, 980),
+                                                              db,
+                                                              false,
+                                                              std::make_unique<EmptyHeader>(),
+                                                              std::make_unique<VerticalHeader>(100, db)));
         auto err = std::make_unique<OutputField>(sf::Vector2f(710, 360), sf::Vector2f(280, 40), "Error");
         {
             auto new_pol = std::make_unique<InputField>(sf::Vector2f(710, 10), sf::Vector2f(280, 40), "New polynom");
@@ -219,7 +228,12 @@ int main() {
                         }
                     }));
 
-            win.AddElement(std::make_unique<TableElement>(sf::Vector2f(710, 550), sf::Vector2f(1000 - 710 - 10, 1000 - 500 - 10), asker));
+            win.AddElement(std::make_unique<TableDrawer>(sf::Vector2f(710, 550),
+                                                                  sf::Vector2f(1000 - 710 - 10, 1000 - 500 - 10),
+                                                                  asker,
+                                                                  false,
+                                                                  std::make_unique<EmptyHeader>(),
+                                                                  std::make_unique<EmptyHeader>()));
             win.AddElement(std::make_unique<ButtonWithTextRelativePos>(sf::Vector2f(710, 450), sf::Vector2f(1000 - 710 - 10, 45),
                                                                        "Get int roots", [&db, l = &*lhs, n = &*n, out = &*out, err = &*err]() {
                         try {

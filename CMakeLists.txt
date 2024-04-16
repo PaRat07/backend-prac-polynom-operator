@@ -14,7 +14,7 @@ add_subdirectory(core)
 
 add_executable(${PROJECT_NAME}
         main.cpp
-        src/table.cpp
+        src/table_drawer.cpp
         src/window.cpp
         src/button.cpp
         src/center_positioned_string.cpp
@@ -23,8 +23,11 @@ add_executable(${PROJECT_NAME}
         app/colors.h
         src/colors.cpp
         src/inoutput_field.cpp
-        src/table.cpp
+        src/table_drawer.cpp
         src/rounded_rectangle.cpp
+        drawers/table_header_drawer_interface.h
+        drawers/table_drawer.h
+        drawers/table_header_drawers.h
 
 )
 

@@ -9,7 +9,7 @@ void Window::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     //     target.draw(*i);
     // }
 
-    std::for_each(elements_.begin(), elements_.end(), [&target] (const std::unique_ptr<AbstractElement> &ptr) {
+    std::for_each(elements_.begin(), elements_.end(), [&target] (const std::unique_ptr<AbstractDrawer> &ptr) {
         target.draw(*ptr);
     });
 }
@@ -19,7 +19,7 @@ void Window::ProcessEvent(sf::Event event) {
     //     i->ProcessEvent(event, target);
     // }
 
-    std::for_each(elements_.begin(), elements_.end(), [event] (const std::unique_ptr<AbstractElement> &ptr) {
+    std::for_each(elements_.begin(), elements_.end(), [event] (const std::unique_ptr<AbstractDrawer> &ptr) {
         ptr->ProcessEvent(event);
     });
 }
