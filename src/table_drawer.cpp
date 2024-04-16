@@ -160,15 +160,16 @@ void TableDrawer::ProcessEvent(sf::Event event) {
             }
             sf::Vector2f pos(event.touch.x / win_size.x, event.touch.y / win_size.y);
             if (std::abs(pos_.x + size_.x / 2 - pos.x) <= size_.x / 2 &&
-                std::abs(pos_.x + size_.x / 2 - pos.x) <= size_.x / 2 &&
-                (event.mouseButton.x - pos_.x * win_size.x - pos_in_.x - PADDING - ver_header_->Size() * 2) / (cell_size.x * win_size.x) - 1 < machine_.Size().x &&
-                (event.mouseButton.y - pos_.y * win_size.y - pos_in_.y - PADDING - hor_header_->Size() * 2) / (cell_size.y * win_size.y) - 1 < machine_.Size().y &&
+                std::abs(pos_.y + size_.y / 2 - pos.y) <= size_.y / 2 &&
+                (event.mouseButton.x - pos_.x * win_size.x - pos_in_.x - PADDING - ver_header_->Size()) / (cell_size.x * win_size.x) - 1 < machine_.Size().x &&
+                (event.mouseButton.y - pos_.y * win_size.y - pos_in_.y - PADDING - hor_header_->Size()) / (cell_size.y * win_size.y) - 1 < machine_.Size().y &&
                 can_change_text_) {
-                active_pos_.emplace((event.mouseButton.x - pos_.x * win_size.x - pos_in_.x - PADDING - ver_header_->Size() * 2) / (cell_size.x * win_size.x) - 1,
-                                    (event.mouseButton.y - pos_.y * win_size.y - pos_in_.y - PADDING - hor_header_->Size() * 2) / (cell_size.y * win_size.y) - 1);
-                field.emplace(sf::Vector2f(active_pos_->x * cell_size.x + pos_in_.x + 2,
-                                                active_pos_->y * cell_size.y + pos_in_.y + 2),
-                              sf::Vector2f(cell_size.x - 2, cell_size.y - 2),
+                active_pos_.emplace((event.mouseButton.x - pos_.x * win_size.x - pos_in_.x - PADDING - ver_header_->Size()) / cell_size.x - 1,
+                                    (event.mouseButton.y - pos_.y * win_size.y - pos_in_.y - PADDING - hor_header_->Size()) / cell_size.y);
+                std::cerr << active_pos_->y << std::endl;
+                field.emplace(sf::Vector2f(active_pos_->x * cell_size.x + pos_in_.x + LINE_THICKNESS,
+                                                active_pos_->y * cell_size.y + pos_in_.y + LINE_THICKNESS),
+                              sf::Vector2f(cell_size.x - LINE_THICKNESS * 2, cell_size.y - LINE_THICKNESS * 2),
                               "Value");
                 field->Activate();
             } else {
@@ -192,5 +193,5 @@ void TableDrawer::ProcessEvent(sf::Event event) {
 }
 
 sf::Vector2i TableDrawer::GetTableSize() const {
-    return { cell_size.x * machine_.Size().x + (int)ver_header_->Size() * 2 / 2,cell_size.y * (machine_.Size().y + 1) };
+    return { cell_size.x * machine_.Size().x, cell_size.y * machine_.Size().y };
 }

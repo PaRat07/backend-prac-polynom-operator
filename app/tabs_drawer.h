@@ -21,12 +21,16 @@ class TabsManager {
     };
 
 public:
-    TabsManager(Tab &&win)
-        : tabs_(std::move(win))
-    {}
+    void AddTab(Tab win) {
+        tabs_.push_back(std::move(win));
+    }
 
     void Start();
 
 private:
-    Tab tabs_;
+    size_t active_ = 0;
+    std::optional<Animation> anim_;
+    std::vector<Tab> tabs_;
+
+    static double GetPercantage(double time_gone);
 };

@@ -1,7 +1,7 @@
 #include "bits/stdc++.h"
 
 #include "app/window_manager.h"
-#include "app/window.h"
+#include "app/tab.h"
 #include "drawers/table_drawer.h"
 
 #include "core/polynomial.h"
@@ -142,7 +142,7 @@ int main() {
     VarsAsker asker(db);
 
 
-    Window win;
+    Tab win;
     {
         win.AddElement(std::make_unique<TableDrawer>(sf::Vector2f(10, 10),
                                                               sf::Vector2f(700, 980),
@@ -230,10 +230,11 @@ int main() {
 
             win.AddElement(std::make_unique<TableDrawer>(sf::Vector2f(710, 550),
                                                                   sf::Vector2f(1000 - 710 - 10, 1000 - 500 - 10),
-                                                                  asker,
-                                                                  false,
-                                                                  std::make_unique<EmptyHeader>(),
-                                                                  std::make_unique<EmptyHeader>()));
+                                                                    asker,
+                                                        true,
+                                                             std::make_unique<EmptyHeader>(),
+                                                             std::make_unique<VerticalHeader>(100, asker)));
+
             win.AddElement(std::make_unique<ButtonWithTextRelativePos>(sf::Vector2f(710, 450), sf::Vector2f(1000 - 710 - 10, 45),
                                                                        "Get int roots", [&db, l = &*lhs, n = &*n, out = &*out, err = &*err]() {
                         try {
@@ -289,7 +290,7 @@ int main() {
         }
         win.AddElement(std::move(err));
     }
-    WindowManager wm;
+    TabsManager wm;
     wm.AddWindow(std::move(win));
     wm.Start();
 }

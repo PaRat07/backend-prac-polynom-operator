@@ -2,9 +2,9 @@
 // Created by pablo on 20.02.24.
 //
 
-#include "../app/window.h"
+#include "../app/tab.h"
 
-void Window::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+void Tab::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     // for (auto &i : elements_) {
     //     target.draw(*i);
     // }
@@ -14,7 +14,7 @@ void Window::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     });
 }
 
-void Window::ProcessEvent(sf::Event event) {
+void Tab::ProcessEvent(sf::Event event) {
     // for (auto &i : elements_) {
     //     i->ProcessEvent(event, target);
     // }

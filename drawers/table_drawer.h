@@ -2,7 +2,7 @@
 
 #include "SFML/Graphics.hpp"
 
-#include "../app/window.h"
+#include "../app/tab.h"
 #include "table_interface.h"
 #include "rounded_rectangle.h"
 #include "../app/colors.h"
@@ -26,6 +26,7 @@ public:
 
     static constexpr int PADDING = 25;
     static constexpr int LINE_THICKNESS = 2;
+
 private:
     Table &machine_;
     sf::Vector2f pos_, size_;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SFML/Graphics.hpp"
-#include "../app/window.h"
+#include "../app/tab.h"
 
 class HeaderDrawer : public AbstractDrawer {
 public:

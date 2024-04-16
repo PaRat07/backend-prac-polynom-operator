@@ -12,11 +12,11 @@ public:
     virtual ~AbstractDrawer() = default;
 };
 
-class Window : public sf::Drawable {
+class Tab : public sf::Drawable {
 public:
-    Window(const Window &other) = delete;
-    Window(Window &&other) = default;
-    Window() = default;
+    Tab(const Tab &other) = delete;
+    Tab(Tab &&other) = default;
+    Tab() = default;
 
     template<class Elem>
     void AddElement(std::unique_ptr<Elem> new_elem) {

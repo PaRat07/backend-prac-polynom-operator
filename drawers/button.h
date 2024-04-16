@@ -9,7 +9,7 @@
 #include "rounded_rectangle.h"
 #include "center_positioned_string.h"
 #include "../app/general_data.h"
-#include "../app/window.h"
+#include "../app/tab.h"
 
 class ButtonWithImage : public AbstractDrawer {
 public:

@@ -8,7 +8,7 @@
 #include <cmath>
 
 #include "center_positioned_string.h"
-#include "../app/window.h"
+#include "../app/tab.h"
 #include "../app/general_data.h"
 #include "rounded_rectangle.h"
 #include "inoutput_field.h"

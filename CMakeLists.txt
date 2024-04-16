@@ -28,6 +28,8 @@ add_executable(${PROJECT_NAME}
         drawers/table_header_drawer_interface.h
         drawers/table_drawer.h
         drawers/table_header_drawers.h
+        app/tabs_drawer.h
+        src/tabs_drawer.cpp
 
 )
 
