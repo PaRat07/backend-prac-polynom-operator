@@ -34,6 +34,9 @@ bool Monomial::operator!=(const Monomial &rhs) const {
 }
 
 std::string Monomial::ToString() const {
+    if (factor == 0) {
+        return "+0";
+    }
     std::string ans;
     if (factor >= 0) {
         ans.push_back('+');

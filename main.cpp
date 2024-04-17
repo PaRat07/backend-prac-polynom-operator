@@ -128,6 +128,9 @@ private:
 };
 
 int main() {
+//    std::cout << "x+7"_p * "x-7"_p << std::endl;
+//    return 0;
+
     DataBase db;
     VarsAsker asker(db);
 
@@ -206,9 +209,10 @@ int main() {
                         sf::Vector2f(10, 60),
                         sf::Vector2f(260, 45),
                         "Add",
-                        [&err = *err, &lhs = *lhs, &rhs = *rhs, &res = *res] () {
+                        [&err = *err, &lhs = *lhs, &rhs = *rhs, &res = *res, &db] () {
                             try {
-                                Polynomial l(lhs.GetText()), r(rhs.GetText());
+                                Polynomial l(db.GetValue(sf::Vector2i(0, std::stoi(lhs.GetText()))));
+                                Polynomial r(db.GetValue(sf::Vector2i(0, std::stoi(rhs.GetText()))));
                                 res.SetText((l + r).ToString());
                                 err.SetText("");
                             } catch (const std::exception &exc) {
@@ -222,6 +226,7 @@ int main() {
                         sf::Vector2f(260, 45),
                         "Save",
                         [&res = *res, &db] () {
+                            Polynomial(res.GetText());
                             db.AddLine(res.GetText());
                         }
                 ));
@@ -257,14 +262,14 @@ int main() {
                         sf::Vector2f(260, 45),
                         "Result"));
 
-
                 multiply.AddElement(std::make_unique<ButtonWithTextRelativePos>(
                         sf::Vector2f(10, 60),
                         sf::Vector2f(260, 45),
                         "Mul",
-                        [&err = *err, &lhs = *lhs, &rhs = *rhs, &res = *res] () {
+                        [&err = *err, &lhs = *lhs, &rhs = *rhs, &res = *res, &db] () {
                             try {
-                                Polynomial l(lhs.GetText()), r(rhs.GetText());
+                                Polynomial l(db.GetValue(sf::Vector2i(0, std::stoi(lhs.GetText()))));
+                                Polynomial r(db.GetValue(sf::Vector2i(0, std::stoi(rhs.GetText()))));
                                 res.SetText((l * r).ToString());
                                 err.SetText("");
                             } catch (const std::exception &exc) {
@@ -272,6 +277,17 @@ int main() {
                             }
                         }
                 ));
+
+                multiply.AddElement(std::make_unique<ButtonWithTextRelativePos>(
+                        sf::Vector2f(10, 160),
+                        sf::Vector2f(260, 45),
+                        "Save",
+                        [&res = *res, &db] () {
+                            Polynomial(res.GetText());
+                            db.AddLine(res.GetText());
+                        }
+                ));
+
                 multiply.AddElement(std::move(lhs));
                 multiply.AddElement(std::move(rhs));
                 multiply.AddElement(std::move(res));
@@ -310,9 +326,10 @@ int main() {
                         sf::Vector2f(10, 60),
                         sf::Vector2f(260, 45),
                         "Divide",
-                        [&err = *err, &lhs = *lhs, &rhs = *rhs, &mod = *mod, &quot = *quot] () {
+                        [&err = *err, &lhs = *lhs, &rhs = *rhs, &mod = *mod, &quot = *quot, &db] () {
                             try {
-                                Polynomial l(lhs.GetText()), r(rhs.GetText());
+                                Polynomial l(db.GetValue(sf::Vector2i(0, std::stoi(lhs.GetText()))));
+                                Polynomial r(db.GetValue(sf::Vector2i(0, std::stoi(rhs.GetText()))));
                                 auto res = l / r;
                                 quot.SetText(res.whole_num.ToString());
                                 mod.SetText(res.num.ToString());
@@ -328,6 +345,7 @@ int main() {
                         sf::Vector2f(260, 45),
                         "Save",
                         [&res = *quot, &db]() {
+                            Polynomial(res.GetText());
                             db.AddLine(res.GetText());
                         }
                 ));
@@ -337,6 +355,7 @@ int main() {
                         sf::Vector2f(260, 45),
                         "Save",
                         [&res = *mod, &db]() {
+                            Polynomial(res.GetText());
                             db.AddLine(res.GetText());
                         }
                 ));
@@ -372,9 +391,9 @@ int main() {
                         sf::Vector2f(10, 60),
                         sf::Vector2f(260, 45),
                         "Get integer roots",
-                        [&err = *err, &polynomial = *polynomial, &res = *res] () {
+                        [&err = *err, &polynomial = *polynomial, &res = *res, &db] () {
                             try {
-                                Polynomial l(polynomial.GetText());
+                                Polynomial l(db.GetValue(sf::Vector2i(0, std::stoi(polynomial.GetText()))));
                                 auto roots = l.GetIntegerRoots();
                                 std::string ans;
                                 for (const auto i : roots) {
@@ -408,31 +427,36 @@ int main() {
                         "Polynomial"));
 
                 std::unique_ptr<OutputField> res(std::make_unique<OutputField>(
-                        sf::Vector2f(10, 110),
+                        sf::Vector2f(10, 160),
                         sf::Vector2f(260, 45),
                         "Result"));
 
                 std::unique_ptr<InputField> var(std::make_unique<InputField>(
-                        sf::Vector2f(185, 60),
-                        sf::Vector2f(75, 45),
+                        sf::Vector2f(10, 60),
+                        sf::Vector2f(125, 45),
                         "Var"));
+
+                std::unique_ptr<InputField> n(std::make_unique<InputField>(
+                        sf::Vector2f(145, 60),
+                        sf::Vector2f(125, 45),
+                        "N"));
 
 
                 get_derivative.AddElement(std::make_unique<ButtonWithTextRelativePos>(
-                        sf::Vector2f(10, 60),
-                        sf::Vector2f(170, 45),
+                        sf::Vector2f(10, 110),
+                        sf::Vector2f(260, 45),
                         "Get Nth derivative",
-                        [&err = *err, &polynomial = *polynomial, &res = *res, &var = *var] () {
-                            err.SetText("Doesn't work yet");
-                            return;
+                        [&err = *err, &polynomial = *polynomial, &res = *res, &var = *var, &n = *n, &db] () {
                             try {
-                                Polynomial l(polynomial.GetText());
-                                auto roots = l.GetIntegerRoots();
-                                std::string ans;
-                                for (const auto i : roots) {
-                                    ans += std::to_string(i);
+                                if (var.GetText().size() != 1) {
+                                    throw std::invalid_argument("Incorrect var");
                                 }
-                                res.SetText(ans.empty() ? "No roots" : ans);
+                                Polynomial l(db.GetValue(sf::Vector2i(0, std::stoi(polynomial.GetText()))));
+                                int n_val = std::stoi(n.GetText());
+                                for (int i = 0; i < n_val; ++i) {
+                                    l = l.GetDerivative(var.GetText()[0]);
+                                }
+                                res.SetText(l.ToString());
                                 err.SetText("");
                             } catch (const std::exception &exc) {
                                 err.SetText(exc.what());
@@ -440,10 +464,21 @@ int main() {
                         }
                 ));
 
+                get_derivative.AddElement(std::make_unique<ButtonWithTextRelativePos>(
+                        sf::Vector2f(10, 210),
+                        sf::Vector2f(260, 45),
+                        "Save",
+                        [&res = *res, &db] () {
+                            Polynomial(res.GetText());
+                            db.AddLine(res.GetText());
+                        }
+                ));
+
                 get_derivative.AddElement(std::move(polynomial));
                 get_derivative.AddElement(std::move(err));
                 get_derivative.AddElement(std::move(res));
                 get_derivative.AddElement(std::move(var));
+                get_derivative.AddElement(std::move(n));
                 tm->AddTab(std::move(get_derivative));
             }
 

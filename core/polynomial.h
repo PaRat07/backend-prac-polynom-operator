@@ -37,9 +37,7 @@ public:
 
     LinkedList<int> GetIntegerRoots() const;
 
-//    SingleLinkedList<int>
-
-    Polynomial GetDerivative() const;
+    Polynomial GetDerivative(char var) const;
 
 private:
     LinkedList<Monomial> data_;

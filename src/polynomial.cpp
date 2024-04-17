@@ -41,6 +41,7 @@ Polynomial Polynomial::operator+(const Polynomial &rhs) const {
         ans.data_.push_back(*it2);
         ++it2;
     }
+    ans.Normalize();
     return ans;
 }
 
@@ -181,6 +182,9 @@ void Polynomial::Normalize() {
 
         if (!new_data.Empty() && Mergeable(new_data.Back(), m)) {
             new_data.Back().factor += m.factor;
+            if (new_data.Back().factor == 0) {
+                new_data.Erase(--new_data.end());
+            }
         } else {
             new_data.push_back(m);
         }
@@ -188,24 +192,11 @@ void Polynomial::Normalize() {
     data_ = std::move(new_data);
 }
 
-Polynomial Polynomial::GetDerivative() const {
-    int letter = -1;
-    for (const Monomial &m : data_) {
-        for (int i = 0; i < 26; ++i) {
-            if (m.powers[i] > 0) {
-                if (letter == -1) {
-                    letter = i;
-                }
-                if (letter != i) {
-                    throw std::runtime_error("Called GetDerivative for some variables polynom");
-                }
-            }
-        }
-    }
-
+Polynomial Polynomial::GetDerivative(char var) const {
+    std::cerr << ToString() << std::endl;
     LinkedList<Monomial> ans;
-    std::transform(data_.begin(), data_.end(), std::back_inserter(ans), [letter] (const Monomial &m) {
-        return m.GetDerivative(letter);
+    std::transform(data_.begin(), data_.end(), std::back_inserter(ans), [var] (const Monomial &m) {
+        return m.GetDerivative(var - 'a');
     });
     Polynomial ans_p;
     ans_p.data_ = ans;

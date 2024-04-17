@@ -28,11 +28,9 @@ struct Monomial {
     double CalcValAt(const std::array<int, 26> &arr) const;
 
     Monomial GetDerivative(int letter) const {
+        if (powers[letter] == 0) return {};
         Monomial ans = *this;
         ans.factor *= ans.powers[letter]--;
-        if (ans.powers[letter] < 0) {
-            throw std::runtime_error("Can't get derivate");
-        }
         return ans;
     }
 };
