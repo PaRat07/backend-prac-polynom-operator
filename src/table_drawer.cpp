@@ -107,7 +107,7 @@ void TableDrawer::draw(sf::RenderTarget &target, sf::RenderStates states) const 
 
     // ver line(not texture)
     {
-        sf::RectangleShape legend_border(sf::Vector2f(LINE_THICKNESS, std::min(real_size.y - PADDING * 2 - (int)hor_header_->Size() - LINE_THICKNESS, machine_.Size().y * cell_size.y + cell_size.y * 2)));
+        sf::RectangleShape legend_border(sf::Vector2f(LINE_THICKNESS, std::min(real_size.y - PADDING * 2 - (int)hor_header_->Size() - LINE_THICKNESS, machine_.Size().y * cell_size.y + (int)hor_header_->Size())));
         legend_border.setFillColor(outline);
         legend_border.setPosition(sf::Vector2f(real_pos.x + PADDING + ver_header_->Size(), real_pos.y + PADDING + hor_header_->Size() - LINE_THICKNESS));
         target.draw(legend_border);
@@ -128,6 +128,7 @@ void TableDrawer::draw(sf::RenderTarget &target, sf::RenderStates states) const 
 void TableDrawer::ProcessEvent(sf::Event event) {
     switch (event.type) {
         case sf::Event::EventType::MouseWheelScrolled: {
+            if (!hovered_) break;
             if (event.mouseWheelScroll.wheel == sf::Mouse::Wheel::VerticalWheel) {
                 pos_in_.y += event.mouseWheelScroll.delta * 4;
                 pos_in_.y = std::max(pos_in_.y, (int) (-GetTableSize().y + size_.y * win_size.y - PADDING * 2));
@@ -177,6 +178,10 @@ void TableDrawer::ProcessEvent(sf::Event event) {
             }
             break;
         }
+        case sf::Event::MouseMoved:
+            hovered_ =  std::abs(pos_.x + size_.x / 2 - event.mouseMove.x / win_size.x) <= size_.x / 2 &&
+                        std::abs(pos_.y + size_.y / 2 - event.mouseMove.y / win_size.y) <= size_.y / 2;
+            break;
         case sf::Event::TextEntered:
             if (field.has_value()) {
                 if (event.text.unicode == 13) {

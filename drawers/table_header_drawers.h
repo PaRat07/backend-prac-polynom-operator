@@ -35,14 +35,13 @@ public:
             buttons_.clear();
             CenterPositionedString str;
             for (int i = 0; i < table_.Size().y; ++i) {
-                buttons_.emplace_back(sf::Vector2f(10,
-                                                   TableDrawer::cell_size.y * i + TableDrawer::cell_size.y / 2 - 5 + shift_),
+                buttons_.emplace_back(sf::Vector2f(20, TableDrawer::cell_size.y * i + TableDrawer::cell_size.y / 2 + shift_),
                                       sf::Vector2f(40, 20),
                                       "del",
                                       [&, id = i]() {
                                           table_.EraseLine(id);
                                       });
-                str.setPosition(sf::Vector2f(60, TableDrawer::cell_size.y * i + TableDrawer::cell_size.y / 2 - 5 + shift_));
+                str.setPosition(sf::Vector2f(50, TableDrawer::cell_size.y * i + TableDrawer::cell_size.y / 2 + 2 + shift_));
                 str.setString(table_.GetLineName(i));
                 target.draw(str);
             }

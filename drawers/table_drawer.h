@@ -24,7 +24,7 @@ public:
 
     virtual void ProcessEvent(sf::Event event) override;
 
-    static constexpr int PADDING = 25;
+    static constexpr int PADDING = 10;
     static constexpr int LINE_THICKNESS = 2;
 
 private:
@@ -37,6 +37,7 @@ private:
 
     std::unique_ptr<HeaderDrawer> hor_header_, ver_header_;
 
+    bool hovered_ = false;
     bool can_change_text_;
 
     sf::Vector2i GetTableSize() const;

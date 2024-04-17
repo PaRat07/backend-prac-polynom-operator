@@ -14,19 +14,14 @@
 
 
 
-class TabsManager {
-    struct Animation {
-        size_t from, to;
-        std::chrono::time_point<std::chrono::steady_clock> beg, end;
-    };
-
+class WindowManager {
 public:
-    TabsManager(Tab &&win)
-        : tabs_(std::move(win))
+    WindowManager(Tab &&tab)
+        : tab_(std::move(tab))
     {}
 
     void Start();
 
 private:
-    Tab tabs_;
+    Tab tab_;
 };

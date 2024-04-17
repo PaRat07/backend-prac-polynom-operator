@@ -1,6 +1,6 @@
 #include "../app/window_manager.h"
 
-void TabsManager::Start() {
+void WindowManager::Start() {
     sf::RenderWindow win(sf::VideoMode(win_size.x, win_size.y), "TuringMachineSimulator", sf::Style::Default);
 
     win.setActive(false);
@@ -13,7 +13,7 @@ void TabsManager::Start() {
                 return;
             }
             win.clear(surface);
-            win.draw(tabs_);
+            win.draw(tab_);
             win.display();
         }
     });
@@ -33,7 +33,7 @@ void TabsManager::Start() {
                 break;
             }
             default: {
-                tabs_.ProcessEvent(event);
+                tab_.ProcessEvent(event);
                 break;
             }
         }
