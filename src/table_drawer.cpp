@@ -167,7 +167,6 @@ void TableDrawer::ProcessEvent(sf::Event event) {
                 can_change_text_) {
                 active_pos_.emplace((event.mouseButton.x - pos_.x * win_size.x - pos_in_.x - PADDING - ver_header_->Size()) / cell_size.x - 1,
                                     (event.mouseButton.y - pos_.y * win_size.y - pos_in_.y - PADDING - hor_header_->Size()) / cell_size.y);
-                std::cerr << active_pos_->y << std::endl;
                 field.emplace(sf::Vector2f(active_pos_->x * cell_size.x + pos_in_.x + LINE_THICKNESS,
                                                 active_pos_->y * cell_size.y + pos_in_.y + LINE_THICKNESS),
                               sf::Vector2f(cell_size.x - LINE_THICKNESS * 2, cell_size.y - LINE_THICKNESS * 2),
@@ -184,6 +183,7 @@ void TableDrawer::ProcessEvent(sf::Event event) {
             break;
         case sf::Event::TextEntered:
             if (field.has_value()) {
+                // Enter
                 if (event.text.unicode == 13) {
                     try {
                         machine_.SetValue(*active_pos_, field->GetText());

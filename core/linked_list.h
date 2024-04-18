@@ -143,12 +143,12 @@ public:
     };
 
     LinkedList()
-        : pre_sentinel_(new Node)
+        : sentinel_(new Node)
     {
     }
 
     LinkedList(const LinkedList<Value_t> &other)
-            : pre_sentinel_(new Node)
+            : sentinel_(new Node)
     {
         std::for_each(other.begin(), other.end(), [&] (const Value_t &val) {
             push_back(val);
@@ -156,16 +156,16 @@ public:
     }
 
     LinkedList(LinkedList &&other)
-        : pre_sentinel_(other.pre_sentinel_)
+        : sentinel_(other.sentinel_)
         , size_(other.size_)
     {
-        other.pre_sentinel_ = new Node;
+        other.sentinel_ = new Node;
         other.size_ = 0;
     }
 
     template<typename Iterator>
     LinkedList(Iterator beg, Iterator end)
-            : pre_sentinel_(new Node)
+            : sentinel_(new Node)
     {
         std::for_each(beg, end, [&] (auto x) {
             push_back(x);
@@ -173,23 +173,23 @@ public:
     }
 
     ~LinkedList() {
-        pre_sentinel_->prev->next = nullptr;
-        while(pre_sentinel_) {
-            Node *buf = pre_sentinel_->next;
-            delete pre_sentinel_;
-            pre_sentinel_ = buf;
+        sentinel_->prev->next = nullptr;
+        while(sentinel_) {
+            Node *buf = sentinel_->next;
+            delete sentinel_;
+            sentinel_ = buf;
         }
     }
 
     LinkedList<Value_t> &operator=(const LinkedList<Value_t> &other) {
-        if (other.pre_sentinel_ == pre_sentinel_) return *this;
+        if (other.sentinel_ == sentinel_) return *this;
         while(size_ > 0) {
-            Node *buf = pre_sentinel_->next;
-            delete pre_sentinel_;
-            pre_sentinel_ = buf;
+            Node *buf = sentinel_->next;
+            delete sentinel_;
+            sentinel_ = buf;
             --size_;
         }
-        pre_sentinel_ = new Node;
+        sentinel_ = new Node;
 
         std::for_each(other.begin(), other.end(), [&] (auto x) {
             PushBack(x);
@@ -198,14 +198,14 @@ public:
     }
 
     LinkedList<Value_t> &operator=(LinkedList<Value_t> &&other) noexcept {
-        std::swap(pre_sentinel_, other.pre_sentinel_);
+        std::swap(sentinel_, other.sentinel_);
         std::swap(size_, other.size_);
         return *this;
     }
 
     template<typename... Args>
     void EmplaceBack(Args&&... val) {
-        EmplaceBefore(pre_sentinel_, std::forward<Args>(val)...);
+        EmplaceBefore(sentinel_, std::forward<Args>(val)...);
     }
 
     template<typename T>
@@ -219,27 +219,27 @@ public:
     }
 
     ConstListIterator begin() const {
-        return { pre_sentinel_->next };
+        return {sentinel_->next };
     }
 
     ConstListIterator end() const {
-        return { pre_sentinel_ };
+        return {sentinel_ };
     }
 
     ListIterator begin() {
-        return {pre_sentinel_->next};
+        return {sentinel_->next};
     }
 
     ListIterator end() {
-        return { pre_sentinel_ };
+        return {sentinel_ };
     }
 
     ConstListIterator cbegin() const {
-        return { pre_sentinel_->next };
+        return {sentinel_->next };
     }
 
     ConstListIterator cend() const {
-        return { pre_sentinel_ };
+        return {sentinel_ };
     }
 
     void Sort() {
@@ -247,19 +247,19 @@ public:
     }
 
     Value_t &Front() {
-        return pre_sentinel_->next->val;
+        return sentinel_->next->val;
     }
 
     const Value_t &Front() const {
-        return pre_sentinel_->next->val;
+        return sentinel_->next->val;
     }
 
     Value_t &Back() {
-        return pre_sentinel_->prev->val;
+        return sentinel_->prev->val;
     }
 
     const Value_t &Back() const {
-        return pre_sentinel_->prev->val;
+        return sentinel_->prev->val;
     }
 
     bool Empty() const {
@@ -283,7 +283,7 @@ public:
     }
 
     void Erase(ConstListIterator it) {
-        if (it.Base() == pre_sentinel_) {
+        if (it.Base() == sentinel_) {
             throw std::runtime_error("Erase end");
         }
         ListIterator non_const_it = const_cast<Node*>(it.Base());
@@ -297,7 +297,7 @@ public:
     }
 
 private:
-    Node *pre_sentinel_;
+    Node *sentinel_;
     size_t size_ = 0;
 
     static LinkedList Sort(LinkedList l) {

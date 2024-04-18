@@ -91,7 +91,7 @@ Polynomial::DivisionResult Polynomial::operator/(const Polynomial &rhs) const {
                     letter = i;
                 }
                 if (letter != i) {
-                    throw std::runtime_error("Called operator/ for some variables polynom");
+                    throw std::invalid_argument("Called operator/ for some variables polynom");
                 }
             }
         }
@@ -100,7 +100,7 @@ Polynomial::DivisionResult Polynomial::operator/(const Polynomial &rhs) const {
         for (int i = 0; i < 26; ++i) {
             if (m.powers[i] > 0) {
                 if (letter != i) {
-                    throw std::runtime_error("Called operator/ for some variables polynom");
+                    throw std::invalid_argument("Called operator/ for some variables polynom");
                 }
             }
         }
@@ -138,7 +138,7 @@ LinkedList<int> Polynomial::GetIntegerRoots() const {
                     letter = i;
                 }
                 if (letter != i) {
-                    throw std::runtime_error("Called GetIntegerRoots for some variables polynom");
+                    throw std::invalid_argument("Called GetIntegerRoots for some variables polynom");
                 }
             }
         }
